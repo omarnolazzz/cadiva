@@ -153,7 +153,10 @@ struct AjustesView: View {
                     get: { Seguridad.biometriaActiva },
                     set: { activar in
                         Task {
-                            if !activar || (await Seguridad.autenticarConBiometria(motivo: "Activa \(biometria.nombre) para abrir Cadiva")) {
+                            let permitido = activar
+                                ? await Seguridad.autenticarConBiometria(motivo: "Activa \(biometria.nombre) para abrir Cadiva")
+                                : true
+                            if permitido {
                                 withAnimation {
                                     Seguridad.biometriaActiva = activar
                                     versionSeguridad += 1

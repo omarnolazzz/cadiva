@@ -1,3 +1,4 @@
+import CadivaCore
 import SwiftData
 import SwiftUI
 

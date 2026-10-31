@@ -90,6 +90,9 @@ struct AjustesView: View {
             }
             .fondoCadiva()
             .navigationTitle("Ajustes")
+            .sheet(isPresented: $creandoPIN, onDismiss: { versionSeguridad += 1 }) {
+                CrearPINView()
+            }
             .overlay {
                 if let borrado {
                     PantallaBorrado(estado: borrado)
@@ -176,9 +179,6 @@ struct AjustesView: View {
                  : "Sin PIN ni \(Seguridad.biometria?.nombre ?? "Face ID") tendrás que iniciar sesión cada vez que abras Cadiva.")
         }
         .celdaCadiva()
-        .sheet(isPresented: $creandoPIN, onDismiss: { versionSeguridad += 1 }) {
-            CrearPINView()
-        }
     }
 
     private var textoBloqueo: String {

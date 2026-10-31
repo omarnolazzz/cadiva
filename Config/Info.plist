@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SupabaseHost</key>
+	<string>$(SUPABASE_HOST)</string>
+	<key>SupabaseAnonKey</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Cadiva usa Face ID para abrirse sin escribir tu PIN ni tu contraseña.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Cadiva usa la cámara para tomar la foto de tus productos.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.cadiva.app.auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>cadiva</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

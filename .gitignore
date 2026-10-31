@@ -1,0 +1,15 @@
+.DS_Store
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+.build/
+.swiftpm/
+CadivaCore/.swiftpm/
+*.xcresult
+dist/
+.playwright-mcp/
+
+# Material de diseño y referencias: solo en este equipo
+Archivos de logo/
+Referencia/

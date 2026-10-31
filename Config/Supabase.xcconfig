@@ -1,0 +1,7 @@
+// Proyecto de Supabase para las cuentas de Cadiva.
+// SUPABASE_HOST va sin "https://" (en .xcconfig "//" inicia un comentario).
+// Ejemplo: SUPABASE_HOST = abcdefghijklmnop.supabase.co
+// La clave anónima (anon / publishable) es pública por diseño; la protegen las políticas del proyecto.
+// Si se dejan vacías, la app funciona solo en modo invitado.
+SUPABASE_HOST = neojwbolatrirydjelpk.supabase.co
+SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lb2p3Ym9sYXRyaXJ5ZGplbHBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0MDA4MTMsImV4cCI6MjEwODk3NjgxM30.iHo4R68qmciBXAcI6CsCj9e253CcaM3mPPRBZQUvp5Y

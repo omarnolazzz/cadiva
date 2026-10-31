@@ -1,0 +1,28 @@
+import Foundation
+import SwiftData
+
+@Model
+final class Compra {
+    var producto: Producto?
+    var fecha: Date = Date.now
+    var precioTotal: Decimal = 0
+    /// En la unidad del producto.
+    var cantidad: Decimal = 1
+    var tienda: String?
+    /// Se marca cuando el producto se acaba.
+    var fechaAgotado: Date?
+    /// Identificador en la nube; se asigna la primera vez que se sincroniza.
+    var uid: UUID?
+
+    init(
+        producto: Producto?, fecha: Date, precioTotal: Decimal, cantidad: Decimal,
+        tienda: String? = nil, fechaAgotado: Date? = nil
+    ) {
+        self.producto = producto
+        self.fecha = fecha
+        self.precioTotal = precioTotal
+        self.cantidad = cantidad
+        self.tienda = tienda
+        self.fechaAgotado = fechaAgotado
+    }
+}

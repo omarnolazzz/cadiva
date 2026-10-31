@@ -80,8 +80,9 @@ struct TarjetaDuracion: View {
         switch estimacion.diasRestantes {
         case ..<0: return "Ya debería haberse acabado (≈ \(fin))."
         case 0: return "Se acabaría hoy."
-        case 1: return "Te queda ≈ 1 día · hasta el \(fin)."
-        default: return "Te quedan ≈ \(estimacion.diasRestantes) días · hasta el \(fin)."
+        // Sin punto final: la abreviatura del mes ya lo trae ("25 nov.").
+        case 1: return "Te queda ≈ 1 día · hasta el \(fin)"
+        default: return "Te quedan ≈ \(estimacion.diasRestantes) días · hasta el \(fin)"
         }
     }
 }

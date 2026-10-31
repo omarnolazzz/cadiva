@@ -50,7 +50,9 @@ struct FormularioCompraView: View {
                 seccionTienda
 
                 if compra != nil {
-                    seccionAgotado
+                    if producto.seguimiento == .duracion {
+                        seccionAgotado
+                    }
                     Section {
                         Button("Borrar compra", role: .destructive) { confirmarBorrado = true }
                     }

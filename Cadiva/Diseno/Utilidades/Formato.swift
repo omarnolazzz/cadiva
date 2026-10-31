@@ -29,6 +29,13 @@ enum Formato {
         cantidad == 1 ? "1 día" : "\(cantidad) días"
     }
 
+    /// "≈ 1 día", "≈ 12 días", "≈ 9 semanas". Para duraciones aproximadas.
+    static func duracion(_ dias: Double) -> String {
+        let redondeado = max(Int(dias.rounded()), 1)
+        if redondeado >= 56 { return "≈ \(Int((dias / 7).rounded())) semanas" }
+        return "≈ \(Self.dias(redondeado))"
+    }
+
     static func unidades(_ cantidad: Int) -> String {
         cantidad == 1 ? "1 unidad" : "\(cantidad) unidades"
     }

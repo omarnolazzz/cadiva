@@ -13,6 +13,8 @@ final class Producto {
     var uid: UUID?
     /// Foto del producto en JPEG; SwiftData la guarda fuera de la base.
     @Attribute(.externalStorage) var foto: Data?
+    /// `Seguimiento` elegido a mano; nil = se sugiere solo según el nombre y la categoría.
+    var seguimientoRaw: String?
 
     @Relationship(deleteRule: .cascade, inverse: \Compra.producto)
     var compras: [Compra] = []

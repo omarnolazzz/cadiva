@@ -27,7 +27,12 @@ struct DetalleProductoView: View {
 
             if !compras.isEmpty {
                 Section {
-                    CuadriculaDatos(compras: compras, resumen: resumen, moneda: moneda)
+                    VStack(spacing: 10) {
+                        if producto.seguimiento == .duracion {
+                            TarjetaDuracion(estimacion: producto.duracionAproximada())
+                        }
+                        CuadriculaDatos(compras: compras, resumen: resumen, moneda: moneda)
+                    }
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))

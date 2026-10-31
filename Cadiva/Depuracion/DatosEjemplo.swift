@@ -104,6 +104,22 @@ enum DatosEjemplo {
                 Muestra(hace: 12, centimos: 14590, tienda: "Tottus"),
             ]
         )
+        agregar(
+            Producto(nombre: "Papas Lay's 42 g", categoria: .snacks, simbolo: "popcorn.fill"),
+            [
+                Muestra(hace: 21, centimos: 250, tienda: "Tambo"),
+                Muestra(hace: 9, centimos: 230, tienda: "Mass"),
+                Muestra(hace: 2, centimos: 270, tienda: "Tambo"),
+            ]
+        )
+        agregar(
+            Producto(nombre: "Shampoo Head & Shoulders 375 ml", categoria: .higiene, simbolo: "drop.fill"),
+            [
+                Muestra(hace: 64, centimos: 2290, tienda: "Plaza Vea"),
+                Muestra(hace: 40, centimos: 2190, unidades: 2, tienda: "Makro"),
+                Muestra(hace: 1, centimos: 2390, tienda: "Plaza Vea"),
+            ]
+        )
         let nuevo = Producto(nombre: "Aceite Primor 1 L", categoria: .despensa, simbolo: "drop.fill")
         nuevo.creado = dia(1)
         contexto.insert(nuevo)

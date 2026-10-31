@@ -7,7 +7,8 @@ extension Producto {
         ProductoNube(
             id: uid ?? UUID(), nombre: nombre, categoria: categoriaRaw, simbolo: simbolo,
             notas: notas, archivado: archivado, creado: creado,
-            foto: foto.map(FormatoNube.huellaFoto)
+            foto: foto.map(FormatoNube.huellaFoto),
+            seguimiento: seguimientoRaw
         )
     }
 
@@ -25,6 +26,7 @@ extension Producto {
         simbolo = fila.simbolo
         notas = fila.notas
         archivado = fila.archivado
+        seguimientoRaw = fila.seguimiento
         creado = fila.creado
     }
 }

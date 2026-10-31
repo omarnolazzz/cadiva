@@ -40,6 +40,8 @@ struct EditarProductoView: View {
                 }
                 .celdaCadiva()
 
+                SeccionSeguimiento(borrador: $borrador)
+
                 Section("Notas") {
                     TextField("Marca, presentación, sabor…", text: $notas, axis: .vertical)
                         .lineLimit(2...6)

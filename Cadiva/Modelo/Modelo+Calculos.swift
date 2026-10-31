@@ -52,3 +52,16 @@ extension Compra {
     var unidades: Int { max(NSDecimalNumber(decimal: cantidad).intValue, 1) }
 }
 
+extension Producto {
+    /// Lo elegido a mano o, si no, lo que sugiere el clasificador según el nombre y la categoría.
+    var seguimiento: Seguimiento {
+        seguimientoRaw.flatMap(Seguimiento.init(rawValue:))
+            ?? ClasificadorSeguimiento.sugerir(nombre: nombre, categoria: categoria.rawValue)
+    }
+
+    /// Solo para productos que se siguen por duración.
+    func duracionAproximada(hoy: Date = .now) -> EstimacionDuracion? {
+        guard seguimiento == .duracion else { return nil }
+        return ConsumoCalculator.app.duracionAproximada(compras: compras.map(\.datos), hoy: hoy)
+    }
+}

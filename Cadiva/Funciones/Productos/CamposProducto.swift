@@ -1,3 +1,4 @@
+import CadivaCore
 import PhotosUI
 import SwiftUI
 import UIKit
@@ -8,6 +9,8 @@ struct BorradorProducto {
     var categoria: Categoria = .despensa
     var simbolo = Categoria.despensa.simbolo
     var foto: Data?
+    /// nil mientras la persona no elija: se usa lo sugerido.
+    var seguimientoElegido: Seguimiento?
 
     init() {}
 
@@ -16,11 +19,19 @@ struct BorradorProducto {
         categoria = producto.categoria
         simbolo = producto.simbolo
         foto = producto.foto
+        seguimientoElegido = producto.seguimientoRaw.flatMap(Seguimiento.init(rawValue:))
     }
+
+    var seguimientoSugerido: Seguimiento {
+        ClasificadorSeguimiento.sugerir(nombre: nombre, categoria: categoria.rawValue)
+    }
+
+    var seguimiento: Seguimiento { seguimientoElegido ?? seguimientoSugerido }
 
     func crear() -> Producto {
         let producto = Producto(nombre: nombre.recortado, categoria: categoria, simbolo: simbolo)
         producto.foto = foto
+        producto.seguimientoRaw = seguimientoElegido?.rawValue
         return producto
     }
 
@@ -29,6 +40,7 @@ struct BorradorProducto {
         producto.categoria = categoria
         producto.simbolo = simbolo
         if producto.foto != foto { producto.foto = foto }
+        producto.seguimientoRaw = seguimientoElegido?.rawValue
     }
 }
 

@@ -20,7 +20,7 @@ extension FilaSincronizable {
 
 public struct ProductoNube: FilaSincronizable {
     public static let tabla = "productos"
-    public static let columnas = "id,nombre,categoria,simbolo,notas,archivado,creado,foto,borrado,modificado"
+    public static let columnas = "id,nombre,categoria,simbolo,notas,archivado,creado,foto,seguimiento,borrado,modificado"
 
     public var id: UUID
     public var nombre: String
@@ -31,11 +31,13 @@ public struct ProductoNube: FilaSincronizable {
     public var creado: Date
     /// Huella de la foto (`FormatoNube.huellaFoto`); la imagen va aparte, en Storage.
     public var foto: String?
+    /// `Seguimiento` elegido a mano; nil = automático.
+    public var seguimiento: String?
     public var borrado: Bool
 
     public init(
         id: UUID, nombre: String, categoria: String, simbolo: String, notas: String?,
-        archivado: Bool, creado: Date, foto: String? = nil, borrado: Bool = false
+        archivado: Bool, creado: Date, foto: String? = nil, seguimiento: String? = nil, borrado: Bool = false
     ) {
         self.id = id
         self.nombre = nombre
@@ -45,11 +47,12 @@ public struct ProductoNube: FilaSincronizable {
         self.archivado = archivado
         self.creado = FormatoNube.redondear(creado)
         self.foto = foto
+        self.seguimiento = seguimiento
         self.borrado = borrado
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, nombre, categoria, simbolo, notas, archivado, creado, foto, borrado
+        case id, nombre, categoria, simbolo, notas, archivado, creado, foto, seguimiento, borrado
     }
 
     // Los vacíos van como null para que al borrar un campo también se borre en la nube.
@@ -63,6 +66,7 @@ public struct ProductoNube: FilaSincronizable {
         try c.encode(archivado, forKey: .archivado)
         try c.encode(creado, forKey: .creado)
         try c.encode(foto, forKey: .foto)
+        try c.encode(seguimiento, forKey: .seguimiento)
         try c.encode(borrado, forKey: .borrado)
     }
 }

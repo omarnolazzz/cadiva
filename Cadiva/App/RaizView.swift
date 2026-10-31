@@ -75,6 +75,7 @@ struct RaizView: View {
             huella.combine(producto.notas)
             huella.combine(producto.archivado)
             huella.combine(producto.foto?.count)
+            huella.combine(producto.seguimientoRaw)
         }
         for compra in compras {
             huella.combine(compra.uid)

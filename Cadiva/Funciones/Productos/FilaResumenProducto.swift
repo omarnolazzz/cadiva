@@ -32,6 +32,9 @@ struct FilaResumenProducto: View {
                     .labelStyle(EtiquetaCompacta())
                     .font(.subheadline)
                     .foregroundStyle(Color.cadiva.textSecondary)
+                    if let estimacion = producto.duracionAproximada(), !estimacion.terminada {
+                        IndicadorDuracion(estimacion: estimacion)
+                    }
                 } else {
                     Text("Sin compras todavía")
                         .font(.subheadline)
@@ -52,5 +55,35 @@ struct FilaResumenProducto: View {
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// "≈ 12 días" con un reloj de arena; en naranja si queda poco y en rojo si ya debió acabarse.
+struct IndicadorDuracion: View {
+    let estimacion: EstimacionDuracion
+
+    var body: some View {
+        Label {
+            Text(texto)
+        } icon: {
+            Image(systemName: "hourglass")
+        }
+        .labelStyle(EtiquetaCompacta())
+        .font(.footnote.weight(.medium))
+        .monospacedDigit()
+        .foregroundStyle(color)
+    }
+
+    private var texto: String {
+        switch estimacion.diasRestantes {
+        case ..<1: "Ya debería acabarse"
+        case 1: "Queda ≈ 1 día"
+        default: "Quedan ≈ \(estimacion.diasRestantes) días"
+        }
+    }
+
+    private var color: Color {
+        if estimacion.diasRestantes < 1 { return Color.cadiva.priceUp }
+        return estimacion.progresoRestante <= 0.25 ? Color.cadiva.runningLow : Color.cadiva.textSecondary
     }
 }

@@ -21,9 +21,6 @@ struct CuadriculaDatos: View {
             Tarjeta(titulo: "Más caro", valor: Formato.moneda(precios.max(), moneda), detalle: nil, simbolo: "arrow.up.circle.fill", color: Color.cadiva.priceUp)
             Tarjeta(titulo: "Promedio", valor: Formato.moneda(resumen.precioUnitarioPromedio, moneda), detalle: "por unidad", simbolo: "equal.circle.fill", color: Color.cadiva.brand)
             Tarjeta(titulo: "Gastado", valor: Formato.moneda(gastado, moneda), detalle: "\(Formato.unidades(unidades)) en \(compras.count == 1 ? "1 compra" : "\(compras.count) compras")", simbolo: "creditcard.fill", color: Color.cadiva.brand)
-            if let duracion = resumen.duracionPromedioDias {
-                Tarjeta(titulo: "Te dura", valor: Formato.dias(Int(duracion.rounded())), detalle: "en promedio", simbolo: "hourglass", color: Color.cadiva.runningLow)
-            }
         }
     }
 }

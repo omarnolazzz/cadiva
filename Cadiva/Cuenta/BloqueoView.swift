@@ -74,14 +74,14 @@ struct TecladoPIN: View {
             }
             HStack(spacing: 26) {
                 if let simboloExtra {
-                    tecla(conFondo: false) { Image(systemName: simboloExtra).font(.system(size: lado * 0.36)) } accion: alExtra
+                    tecla(conFondo: false) { Image(systemName: simboloExtra).font(.system(size: lado * 0.36)) } accion: { alExtra() }
                         .accessibilityLabel(etiquetaExtra)
                 } else {
                     Color.clear.frame(width: lado, height: lado)
                 }
                 tecla { Text("0").font(.system(size: lado * 0.4, weight: .medium, design: .rounded)) } accion: { alPulsar("0") }
                     .accessibilityLabel("0")
-                tecla(conFondo: false) { Image(systemName: "delete.left").font(.system(size: lado * 0.3)) } accion: alBorrar
+                tecla(conFondo: false) { Image(systemName: "delete.left").font(.system(size: lado * 0.3)) } accion: { alBorrar() }
                     .accessibilityLabel("Borrar")
             }
         }

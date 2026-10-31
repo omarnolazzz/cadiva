@@ -5,6 +5,8 @@ import SwiftData
 
 /// Mantiene iguales los productos y compras del iPhone y los de la cuenta.
 /// El iPhone conserva su copia para abrir al instante y funcionar sin internet.
+@Observable
+@MainActor
 final class Sincronizador {
     enum Estado: Equatable {
         case inactivo

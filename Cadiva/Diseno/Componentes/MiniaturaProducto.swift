@@ -33,7 +33,6 @@ struct MiniaturaProducto: View {
 
 /// Las fotos se reducen una vez y se guardan en memoria para que las listas vayan fluidas.
 @MainActor
-
 enum CacheMiniaturas {
     private static let cache = NSCache<NSString, UIImage>()
 

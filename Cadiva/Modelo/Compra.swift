@@ -6,7 +6,7 @@ final class Compra {
     var producto: Producto?
     var fecha: Date = Date.now
     var precioTotal: Decimal = 0
-    /// En la unidad del producto.
+    /// Unidades que se llevaron; `precioTotal` es el precio por unidad × unidades.
     var cantidad: Decimal = 1
     var tienda: String?
     /// Se marca cuando el producto se acaba.

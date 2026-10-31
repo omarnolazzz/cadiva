@@ -25,29 +25,6 @@ enum Categoria: String, CaseIterable, Identifiable {
     }
 }
 
-enum Unidad: String, CaseIterable, Identifiable {
-    case rollos, paquetes, piezas, litros, kg, gramos
-
-    var id: Self { self }
-
-    var singular: String {
-        switch self {
-        case .rollos: "rollo"
-        case .paquetes: "paquete"
-        case .piezas: "pieza"
-        case .litros: "litro"
-        case .kg: "kg"
-        case .gramos: "gramo"
-        }
-    }
-
-    /// "1 rollo", "12 rollos", "1.5 kg".
-    func texto(_ cantidad: Decimal) -> String {
-        let numero = cantidad.formatted(.number.locale(.cadiva))
-        return "\(numero) \(cantidad == 1 ? singular : rawValue)"
-    }
-}
-
 /// Lista corta de SF Symbols para elegir el ícono de un producto.
 enum SimbolosProducto {
     static let todos = [

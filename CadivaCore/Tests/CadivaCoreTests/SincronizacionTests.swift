@@ -9,8 +9,8 @@ struct SincronizacionTests {
 
     func producto(_ id: UUID = idA, nombre: String = "Papel", borrado: Bool = false) -> ProductoNube {
         ProductoNube(
-            id: id, nombre: nombre, categoria: "Limpieza", unidad: "rollos", simbolo: "scroll.fill",
-            notas: nil, archivado: false, duracionEstimadaDias: nil,
+            id: id, nombre: nombre, categoria: "Limpieza", simbolo: "scroll.fill",
+            notas: nil, archivado: false,
             creado: Date(timeIntervalSince1970: 1_800_000_000), borrado: borrado
         )
     }
@@ -183,7 +183,7 @@ struct SincronizacionTests {
         let json = try #require(String(data: FormatoNube.codificador.encode(producto()), encoding: .utf8))
         #expect(json.contains(#""notas":null"#))
         #expect(json.contains(#""foto":null"#))
-        #expect(json.contains(#""duracion_estimada_dias":null"#))
+        #expect(!json.contains("unidad"))
     }
 
     @Test func huellaFotoCambiaConLaImagen() {
@@ -210,7 +210,7 @@ struct SincronizacionTests {
     @Test func errorDelServidorSeReporta() async {
         let falso = TransporteFalso()
         falso.responder(403, #"{"code":"42501","message":"new row violates row-level security policy"}"#)
-        await #expect(throws: ErrorAuth.servidor("new row violates row-level security policy")) {
+        await #expect(throws: ErrorNube.servidor("new row violates row-level security policy")) {
             _ = try await ClienteDatos(configuracion: configuracion, transporte: falso.transporte)
                 .subir([producto()], token: "tok")
         }

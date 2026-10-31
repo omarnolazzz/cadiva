@@ -39,7 +39,7 @@ extension Producto {
     var compraActiva: Compra? { comprasOrdenadas.last { $0.fechaAgotado == nil } }
 
     func resumen(hoy: Date = .now) -> ResumenConsumo {
-        ConsumoCalculator.app.resumen(compras: compras.map(\.datos), duracionInicial: duracionEstimadaDias, hoy: hoy)
+        ConsumoCalculator.app.resumen(compras: compras.map(\.datos), hoy: hoy)
     }
 }
 
@@ -52,34 +52,3 @@ extension Compra {
     var unidades: Int { max(NSDecimalNumber(decimal: cantidad).intValue, 1) }
 }
 
-/// Tiendas del historial, de la más usada a la menos usada.
-enum TiendasFrecuentes {
-    static func ordenar(_ compras: [Compra]) -> [String] {
-        var conteo: [String: (nombre: String, veces: Int, ultima: Date)] = [:]
-        for compra in compras {
-            guard let tienda = compra.tienda?.recortado, !tienda.isEmpty else { continue }
-            let clave = tienda.lowercased(with: .cadiva)
-            var actual = conteo[clave] ?? (tienda, 0, .distantPast)
-            actual.veces += 1
-            if compra.fecha > actual.ultima {
-                actual.ultima = compra.fecha
-                actual.nombre = tienda
-            }
-            conteo[clave] = actual
-        }
-        return conteo.values
-            .sorted { $0.veces != $1.veces ? $0.veces > $1.veces : $0.ultima > $1.ultima }
-            .map(\.nombre)
-    }
-
-    /// Las que coinciden con lo escrito (sin distinguir mayúsculas ni acentos), sin repetir lo ya escrito.
-    static func sugerencias(_ tiendas: [String], para texto: String, limite: Int = 6) -> [String] {
-        let escrito = texto.recortado
-        guard !escrito.isEmpty else { return Array(tiendas.prefix(limite)) }
-        let opciones: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
-        return tiendas
-            .filter { $0.range(of: escrito, options: opciones) != nil && $0.compare(escrito, options: opciones) != .orderedSame }
-            .prefix(limite)
-            .map { $0 }
-    }
-}

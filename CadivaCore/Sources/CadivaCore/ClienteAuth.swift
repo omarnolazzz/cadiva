@@ -15,11 +15,14 @@ public struct Usuario: Codable, Sendable, Equatable {
     public var id: String
     public var email: String?
     public var nombre: String?
+    /// Foto de perfil del proveedor (Google la manda como `avatar_url` o `picture`).
+    public var foto: URL?
 
-    public init(id: String, email: String?, nombre: String?) {
+    public init(id: String, email: String?, nombre: String?, foto: URL? = nil) {
         self.id = id
         self.email = email
         self.nombre = nombre
+        self.foto = foto
     }
 }
 
@@ -276,12 +279,20 @@ public struct ClienteAuth: Sendable {
         }
         let metadatos = respuesta.user.user_metadata ?? [:]
         let nombre = ["nombre", "full_name", "name"].lazy.compactMap { metadatos[$0]?.texto }.first { !$0.isEmpty }
+        let foto = ["avatar_url", "picture"].lazy.compactMap { metadatos[$0]?.texto }.compactMap(Self.fotoGrande).first
         return Sesion(
             tokenAcceso: respuesta.access_token,
             tokenRefresco: respuesta.refresh_token,
             expiraEn: ahora().addingTimeInterval(respuesta.expires_in),
-            usuario: Usuario(id: respuesta.user.id, email: respuesta.user.email, nombre: nombre)
+            usuario: Usuario(id: respuesta.user.id, email: respuesta.user.email, nombre: nombre, foto: foto)
         )
+    }
+
+    /// Google entrega la foto a 96 px (`=s96-c`); se pide a 256 para que se vea nítida.
+    static func fotoGrande(_ texto: String) -> URL? {
+        guard texto.hasPrefix("https://") else { return nil }
+        let grande = texto.replacingOccurrences(of: "=s96-c", with: "=s256-c")
+        return URL(string: grande)
     }
 
     static func normalizar(_ email: String) -> String {

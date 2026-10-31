@@ -104,6 +104,19 @@ final class SesionUsuario {
         guard estaBloqueado else { return }
         Seguridad.reiniciarIntentos()
         estado = sesion.map { .conectado($0.usuario) } ?? .invitado
+        if let sesion, sesion.usuario.foto == nil {
+            Task { await actualizarPerfil() }
+        }
+    }
+
+    /// Trae de nuevo el perfil (nombre y foto) renovando la sesión. Sirve para sesiones guardadas
+    /// antes de que Cadiva leyera la foto de Google. Sin internet no pasa nada.
+    func actualizarPerfil() async {
+        guard let actual = sesion, let cliente,
+              let nueva = try? await cliente.refrescar(actual) else { return }
+        guardar(nueva)
+        sesion = nueva
+        if case .conectado = estado { estado = .conectado(nueva.usuario) }
     }
 
     /// Olvidó el PIN o agotó los intentos: se quita el bloqueo y vuelve a iniciar sesión.

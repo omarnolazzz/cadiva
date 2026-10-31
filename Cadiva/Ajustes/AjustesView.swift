@@ -194,12 +194,7 @@ struct AjustesView: View {
         Section {
             if let usuario = sesion.usuario {
                 HStack(spacing: 14) {
-                    Text(iniciales(usuario))
-                        .font(.headline)
-                        .foregroundStyle(Color.cadiva.brand)
-                        .frame(width: 44, height: 44)
-                        .background(Color.cadiva.tint, in: Circle())
-                        .accessibilityHidden(true)
+                    AvatarUsuario(usuario: usuario, lado: 52)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(usuario.nombre ?? "Tu cuenta")
                             .font(.body.weight(.semibold))
@@ -274,12 +269,6 @@ struct AjustesView: View {
                 if let usuario { sincronizador.olvidar(usuario: usuario) }
             }
         }
-    }
-
-    private func iniciales(_ usuario: Usuario) -> String {
-        let base = usuario.nombre ?? usuario.email ?? "?"
-        let letras = base.split(separator: " ").prefix(2).compactMap(\.first)
-        return String(letras).uppercased()
     }
 
     private func exportarCSV() throws -> URL {

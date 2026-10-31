@@ -131,6 +131,27 @@ struct ClienteAuthTests {
         #expect(sesion.usuario.nombre == "Ana")
     }
 
+    @Test func googleTraeNombreYFotoGrande() async throws {
+        let falso = TransporteFalso()
+        falso.responder(200, """
+        {"access_token":"a","token_type":"bearer","expires_in":3600,"refresh_token":"r",
+         "user":{"id":"g1","email":"gabriel@gmail.com","user_metadata":{
+           "avatar_url":"https://lh3.googleusercontent.com/a/ACg8oc=s96-c",
+           "picture":"https://lh3.googleusercontent.com/a/ACg8oc=s96-c",
+           "full_name":"Gabriel Nolazco","email_verified":true}}}
+        """)
+        let sesion = try await cliente(falso).canjearCodigo("c", pkce: PKCE(verificador: "v"))
+        #expect(sesion.usuario.nombre == "Gabriel Nolazco")
+        #expect(sesion.usuario.foto?.absoluteString == "https://lh3.googleusercontent.com/a/ACg8oc=s256-c")
+    }
+
+    @Test func sesionGuardadaSinFotoSigueLeyendose() throws {
+        let vieja = #"{"id":"u1","email":"ana@correo.mx","nombre":"Ana"}"#
+        let usuario = try JSONDecoder().decode(Usuario.self, from: Data(vieja.utf8))
+        #expect(usuario.foto == nil)
+        #expect(usuario.nombre == "Ana")
+    }
+
     // MARK: Refresco, recuperación y salida
 
     @Test func refrescarUsaElTokenDeRefresco() async throws {

@@ -217,8 +217,14 @@ struct BloqueoView: View {
     private var encabezado: some View {
         VStack(spacing: 14) {
             ZStack {
-                SimboloAnimado(lado: 72, inicio: inicioSimbolo)
-                    .opacity(estado == .exito ? 0 : 1)
+                Group {
+                    if let usuario {
+                        AvatarUsuario(usuario: usuario, lado: 80)
+                    } else {
+                        SimboloAnimado(lado: 72, inicio: inicioSimbolo)
+                    }
+                }
+                .opacity(estado == .exito ? 0 : 1)
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 56, weight: .semibold))
                     .foregroundStyle(Color.cadiva.priceDown)

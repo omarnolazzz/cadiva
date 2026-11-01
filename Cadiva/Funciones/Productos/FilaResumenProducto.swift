@@ -10,8 +10,12 @@ struct FilaResumenProducto: View {
     @Environment(\.dynamicTypeSize) private var tamanoTexto
 
     var body: some View {
+        // Todo lo de la fila sale de una sola pasada por las compras.
+        let calculadora = ConsumoCalculator.app
         let ultima = producto.ultimaCompra
-        let cambio = producto.resumen().cambioPrecio
+        let ordenadas = calculadora.ordenadas(producto.compras.map { $0.datos })
+        let cambio = ordenadas.count > 1 ? calculadora.cambioPrecio(de: ordenadas[ordenadas.count - 1], anterior: ordenadas[ordenadas.count - 2]) : nil
+        let estimacion = producto.seguimiento == .duracion ? calculadora.duracionAproximada(compras: ordenadas, hoy: .now) : nil
         // Con texto de accesibilidad todo va en columna para que nada se corte.
         let disposicion = tamanoTexto.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
@@ -32,7 +36,7 @@ struct FilaResumenProducto: View {
                     .labelStyle(EtiquetaCompacta())
                     .font(.subheadline)
                     .foregroundStyle(Color.cadiva.textSecondary)
-                    if let estimacion = producto.duracionAproximada(), !estimacion.terminada {
+                    if let estimacion, !estimacion.terminada {
                         IndicadorDuracion(estimacion: estimacion)
                     }
                 } else {

@@ -5,7 +5,7 @@ import Foundation
 /// `--datos-ejemplo` usa el contenedor en memoria; nunca toca los datos reales.
 /// `--pestana 0|1|2` elige Productos, Gasto o Ajustes.
 /// `--pantalla` abre una pantalla: detalle, registro, oferta-detalle, oferta-compra, nuevo-producto, borrado, crear-pin, oferta,
-/// arranque, login, registro-cuenta, recuperar, bloqueo o cargando.
+/// buscar-imagen, arranque, login, registro-cuenta, recuperar, bloqueo, bloqueo-faceid o cargando.
 enum Demo {
     private static var argumentos: [String] { ProcessInfo.processInfo.arguments }
 

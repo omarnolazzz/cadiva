@@ -9,22 +9,30 @@ struct SimboloAnimado: View {
 
     @Environment(\.colorScheme) private var esquema
     @Environment(\.accessibilityReduceMotion) private var reducirMovimiento
+    /// Al terminar se detiene el reloj: si no, redibuja a 120 Hz para siempre (gasta batería y calienta).
+    @State private var terminado = false
 
     var body: some View {
         let dibujo = DibujoSimbolo(
             colorTrazo: esquema == .dark ? .white : Color.cadiva.brand,
             colorPunto: esquema == .dark ? Color.cadiva.mint : Color.cadiva.brand
         )
-        let reducir = reducirMovimiento
+        let quieto = reducirMovimiento || terminado
         let inicio = inicio
-        TimelineView(.animation(paused: reducir)) { contexto in
-            let t = reducir ? DibujoSimbolo.total : contexto.date.timeIntervalSince(inicio)
+        TimelineView(.animation(paused: quieto)) { contexto in
+            let t = quieto ? DibujoSimbolo.total : contexto.date.timeIntervalSince(inicio)
             Canvas { lienzo, tamano in
                 dibujo.dibujar(en: &lienzo, tamano: tamano, t: t)
             }
         }
         .frame(width: lado, height: lado)
         .accessibilityHidden(true)
+        .task(id: inicio) {
+            terminado = false
+            let restante = DibujoSimbolo.total - Date.now.timeIntervalSince(inicio)
+            if restante > 0 { try? await Task.sleep(for: .seconds(restante + 0.05)) }
+            if !Task.isCancelled { terminado = true }
+        }
     }
 }
 

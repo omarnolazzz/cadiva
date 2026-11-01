@@ -37,7 +37,10 @@ struct RaizView: View {
         }
         #endif
         // Cadiva ya no manda avisos de recompra: se quitan los que hubieran quedado programados.
-        .task { UNUserNotificationCenter.current().removeAllPendingNotificationRequests() }
+        .task {
+            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+            AlmacenLocal.completarHuellasDeFotos(en: contexto)
+        }
         // Con cuenta: sincroniza al entrar, al volver a la app y poco después de cada cambio.
         .task(id: Disparo(usuario: sesion.usuario?.id, datos: huellaDatos, activaciones: activaciones)) {
             guard sesion.usuario != nil else { return }
@@ -74,7 +77,7 @@ struct RaizView: View {
             huella.combine(producto.simbolo)
             huella.combine(producto.notas)
             huella.combine(producto.archivado)
-            huella.combine(producto.foto?.count)
+            huella.combine(producto.fotoHuella)
             huella.combine(producto.seguimientoRaw)
         }
         for compra in compras {

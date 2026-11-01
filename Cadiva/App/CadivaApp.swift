@@ -41,6 +41,10 @@ struct CadivaApp: App {
             switch Demo.valor("--pantalla") {
             case "arranque": return SesionUsuario(estado: .cargando)
             case "bienvenida", "login", "registro-cuenta", "recuperar": return SesionUsuario(estado: .sinSesion)
+            case "bloqueo-faceid":
+                Seguridad.simulado = true
+                Seguridad.simuladoSinPIN = true
+                return SesionUsuario(estado: .bloqueado(Usuario(id: "demo", email: "gabriel@correo.pe", nombre: "Gabriel Nolazco")))
             case "bloqueo":
                 Seguridad.simulado = true
                 return SesionUsuario(estado: .bloqueado(Usuario(id: "demo", email: "gabriel@correo.pe", nombre: "Gabriel Nolazco")))

@@ -46,9 +46,12 @@ struct BloqueoView: View {
                     .opacity(visible ? 1 : 0)
                     .offset(y: visible ? 0 : 40)
                 } else if let biometria {
-                    BotonPrincipal(titulo: "Desbloquear con \(biometria.nombre)") { Task { await usarBiometria() } }
-                        .padding(.horizontal, 32)
-                        .opacity(visible ? 1 : 0)
+                    BotonGlass(titulo: "Desbloquear con \(biometria.nombre)", simbolo: biometria.simbolo, activo: autenticando) {
+                        Task { await usarBiometria() }
+                    }
+                    .padding(.horizontal, 32)
+                    .opacity(visible ? 1 : 0)
+                    .scaleEffect(visible ? 1 : 0.92)
                 }
                 Spacer(minLength: 20)
                 Button(usuario == nil ? "¿Olvidaste tu PIN?" : "Entrar con mi cuenta") {

@@ -46,10 +46,11 @@ struct DetalleProductoView: View {
             }
 
             let tiendas = ResumenTienda.calcular(compras)
+            let masBarata = tiendas.count > 1 ? tiendas.min { $0.precioMinimo < $1.precioMinimo }?.id : nil
             if !tiendas.isEmpty {
                 Section {
                     ForEach(tiendas) { tienda in
-                        FilaTienda(tienda: tienda, moneda: moneda, esLaMasBarata: tiendas.count > 1 && tienda.id == tiendas.min { $0.precioMinimo < $1.precioMinimo }?.id)
+                        FilaTienda(tienda: tienda, moneda: moneda, esLaMasBarata: tienda.id == masBarata)
                     }
                 } header: {
                     Text("Por tienda")
@@ -127,7 +128,7 @@ struct DetalleProductoView: View {
 
     private func encabezado(compras: [Compra], cambio: Decimal?) -> some View {
         VStack(spacing: 14) {
-            MiniaturaProducto(producto: producto, tamano: producto.foto == nil ? 88 : 150)
+            MiniaturaProducto(producto: producto, tamano: producto.fotoHuella == nil ? 88 : 150)
                 .entrada()
             VStack(spacing: 6) {
                 Text(producto.nombre)

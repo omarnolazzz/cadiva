@@ -1,3 +1,5 @@
+import CadivaCore
+import Foundation
 import SwiftData
 
 /// Operaciones sobre todos los datos guardados en este iPhone.
@@ -24,5 +26,17 @@ enum AlmacenLocal {
             contexto.delete(producto)
         }
         try? contexto.save()
+    }
+
+    /// Las fotos guardadas antes de que existiera `fotoHuella` no la tienen: se calcula una sola vez.
+    static func completarHuellasDeFotos(en contexto: ModelContext) {
+        let clave = "huellasDeFotosCompletas"
+        guard !UserDefaults.standard.bool(forKey: clave) else { return }
+        let sinHuella = FetchDescriptor<Producto>(predicate: #Predicate { $0.fotoHuella == nil })
+        for producto in (try? contexto.fetch(sinHuella)) ?? [] {
+            if let foto = producto.foto { producto.fotoHuella = FormatoNube.huellaFoto(foto) }
+        }
+        try? contexto.save()
+        UserDefaults.standard.set(true, forKey: clave)
     }
 }

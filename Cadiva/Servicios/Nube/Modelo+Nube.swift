@@ -7,7 +7,7 @@ extension Producto {
         ProductoNube(
             id: uid ?? UUID(), nombre: nombre, categoria: categoriaRaw, simbolo: simbolo,
             notas: notas, archivado: archivado, creado: creado,
-            foto: foto.map(FormatoNube.huellaFoto),
+            foto: fotoHuella,
             seguimiento: seguimientoRaw
         )
     }
@@ -15,11 +15,11 @@ extension Producto {
     /// `nueva` es la foto descargada; si es nil y la huella no coincide, la foto ya no existe.
     func aplicar(_ fila: ProductoNube, foto nueva: Data?) {
         if fila.foto == nil {
-            foto = nil
+            asignarFoto(nil)
         } else if let nueva {
-            foto = nueva
-        } else if foto.map(FormatoNube.huellaFoto) != fila.foto {
-            foto = nil
+            asignarFoto(nueva)
+        } else if fotoHuella != fila.foto {
+            asignarFoto(nil)
         }
         nombre = fila.nombre
         categoriaRaw = fila.categoria

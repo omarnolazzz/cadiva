@@ -13,6 +13,7 @@ struct ProductosView: View {
     @State private var categoria: Categoria?
     @State private var creando = false
     @State private var porBorrar: Producto?
+    @State private var listaVisible = false
     @Namespace private var transicion
 
     var body: some View {
@@ -74,7 +75,7 @@ struct ProductosView: View {
                 if ["detalle", "registro"].contains(Demo.valor("--pantalla")), let primero = productos.first(where: { !$0.compras.isEmpty }) {
                     ruta = [primero]
                 }
-                creando = Demo.valor("--pantalla") == "nuevo-producto"
+                creando = ["nuevo-producto", "buscar-imagen"].contains(Demo.valor("--pantalla"))
                 if ["oferta-detalle", "oferta-compra"].contains(Demo.valor("--pantalla")),
                    let papas = productos.first(where: { $0.nombre.hasPrefix("Papas") }) {
                     ruta = [papas]
@@ -86,12 +87,18 @@ struct ProductosView: View {
 
     // MARK: Lista
 
+    /// Se calcula la última compra de cada producto una sola vez y luego se filtra y ordena.
     private var filtrados: [Producto] {
         let texto = busqueda.recortado
         return productos
-            .filter { texto.isEmpty || $0.nombre.localizedStandardContains(texto) || ($0.ultimaCompra?.tienda?.localizedStandardContains(texto) ?? false) }
             .filter { categoria == nil || $0.categoria == categoria }
-            .sorted { ($0.ultimaCompra?.fecha ?? $0.creado) > ($1.ultimaCompra?.fecha ?? $1.creado) }
+            .map { ($0, $0.ultimaCompra) }
+            .filter { producto, ultima in
+                texto.isEmpty || producto.nombre.localizedStandardContains(texto)
+                    || (ultima?.tienda?.localizedStandardContains(texto) ?? false)
+            }
+            .sorted { ($0.1?.fecha ?? $0.0.creado) > ($1.1?.fecha ?? $1.0.creado) }
+            .map(\.0)
     }
 
     private var categoriasUsadas: [Categoria] {
@@ -115,10 +122,9 @@ struct ProductosView: View {
 
             if !activos.isEmpty {
                 Section {
-                    ForEach(Array(activos.enumerated()), id: \.element.persistentModelID) { indice, producto in
-                        fila(producto)
-                            .entrada(retraso: min(Double(indice) * 0.04, 0.4))
-                    }
+                    // Sin animación de entrada por fila: las celdas se reutilizan al desplazarse
+                    // y cada aparición volvía a animar, lo que bajaba los fps.
+                    ForEach(activos) { fila($0) }
                 } header: {
                     Text(activos.count == 1 ? "1 producto" : "\(activos.count) productos")
                 }
@@ -137,6 +143,11 @@ struct ProductosView: View {
         }
         .listStyle(.insetGrouped)
         .animation(.snappy, value: filtrados.map(\.persistentModelID))
+        .opacity(listaVisible ? 1 : 0)
+        .onAppear {
+            // Una sola entrada suave para toda la lista.
+            withAnimation(.easeOut(duration: 0.3)) { listaVisible = true }
+        }
         .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
     }
 

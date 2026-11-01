@@ -64,9 +64,10 @@ final class Sincronizador {
 
         let filasProductos = productos.map(\.fila)
         let filasCompras = compras.map(\.fila)
-        let fotosLocales = Dictionary(
-            productos.compactMap { p in p.uid.flatMap { id in p.foto.map { (id, $0) } } },
-            uniquingKeysWith: { primera, _ in primera }
+        // Las fotos solo se leen del disco si hay que subirlas (ver abajo): leerlas todas calienta el iPhone.
+        let productosPorId = Dictionary(
+            productos.compactMap { p in p.uid.map { ($0, p) } },
+            uniquingKeysWith: { primero, _ in primero }
         )
 
         let token = try await sesion.tokenVigente()
@@ -81,7 +82,7 @@ final class Sincronizador {
         // Primero se sube; si falla, el iPhone queda igual y se reintenta después.
         // Las fotos van antes que las filas para que otro dispositivo nunca vea una huella sin imagen.
         for fila in planProductos.subir where !fila.borrado && fila.foto != nil {
-            if let datos = fotosLocales[fila.id] {
+            if let datos = productosPorId[fila.id]?.foto {
                 try await cliente.subirFoto(datos, ruta: ClienteDatos.rutaFoto(usuario: usuario, producto: fila.id), token: token)
             }
         }

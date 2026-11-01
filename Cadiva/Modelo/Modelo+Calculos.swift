@@ -17,11 +17,12 @@ extension Calendar {
 }
 
 extension ConsumoCalculator {
-    static var app: ConsumoCalculator { ConsumoCalculator(calendar: .cadiva) }
+    /// Una sola instancia: crear el calendario en cada fila y en cada redibujado costaba.
+    static let app = ConsumoCalculator(calendar: .cadiva)
 }
 
 extension GastoCalculator {
-    static var app: GastoCalculator { GastoCalculator(calendar: .cadiva) }
+    static let app = GastoCalculator(calendar: .cadiva)
 }
 
 extension Compra {
@@ -44,7 +45,8 @@ extension Producto {
 }
 
 extension Producto {
-    var ultimaCompra: Compra? { comprasOrdenadas.last }
+    /// Recorre las compras una vez: no hace falta ordenarlas para saber cuál es la última.
+    var ultimaCompra: Compra? { compras.max { $0.fecha < $1.fecha } }
 }
 
 extension Compra {

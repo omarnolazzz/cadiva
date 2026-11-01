@@ -16,13 +16,15 @@ enum Seguridad {
     #if DEBUG
     /// Las capturas muestran la pantalla de bloqueo sin tocar el Keychain.
     static var simulado = false
+    /// Con `simulado`: bloqueo solo con Face ID, sin PIN.
+    static var simuladoSinPIN = false
     #endif
 
     // MARK: Estado
 
     static var tienePIN: Bool {
         #if DEBUG
-        if simulado { return true }
+        if simulado { return !simuladoSinPIN }
         #endif
         return Llavero.leer(cuenta: cuentaPIN) != nil
     }

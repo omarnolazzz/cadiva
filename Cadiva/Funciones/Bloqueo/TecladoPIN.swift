@@ -28,7 +28,8 @@ struct TecladoPIN: View {
             }
             HStack(spacing: 26) {
                 if let simboloExtra {
-                    tecla(conFondo: false) { Image(systemName: simboloExtra).font(.system(size: lado * 0.36)) } accion: { alExtra() }
+                    // Face ID: tecla de vidrio con el ícono en el color de la marca.
+                    tecla(conFondo: true) { Image(systemName: simboloExtra).font(.system(size: lado * 0.36)).foregroundStyle(Color.cadiva.brand) } accion: { alExtra() }
                         .accessibilityLabel(etiquetaExtra)
                 } else {
                     Color.clear.frame(width: lado, height: lado)

@@ -28,7 +28,7 @@ struct EditarProductoView: View {
         NavigationStack {
             Form {
                 Section {
-                    SelectorFoto(foto: $borrador.foto, simbolo: borrador.simbolo)
+                    SelectorFoto(foto: $borrador.foto, simbolo: borrador.simbolo, consulta: borrador.nombre)
                 }
                 .listRowBackground(Color.clear)
 

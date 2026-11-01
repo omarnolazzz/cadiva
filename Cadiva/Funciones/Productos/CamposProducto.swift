@@ -30,7 +30,7 @@ struct BorradorProducto {
 
     func crear() -> Producto {
         let producto = Producto(nombre: nombre.recortado, categoria: categoria, simbolo: simbolo)
-        producto.foto = foto
+        producto.asignarFoto(foto)
         producto.seguimientoRaw = seguimientoElegido?.rawValue
         return producto
     }
@@ -39,7 +39,7 @@ struct BorradorProducto {
         producto.nombre = nombre.recortado
         producto.categoria = categoria
         producto.simbolo = simbolo
-        if producto.foto != foto { producto.foto = foto }
+        producto.asignarFoto(foto)
         producto.seguimientoRaw = seguimientoElegido?.rawValue
     }
 }
@@ -75,7 +75,7 @@ struct CamposProducto: View {
 #Preview("Claro") {
     @Previewable @State var borrador = BorradorProducto()
     Form {
-        SelectorFoto(foto: $borrador.foto, simbolo: borrador.simbolo)
+        SelectorFoto(foto: $borrador.foto, simbolo: borrador.simbolo, consulta: borrador.nombre)
         TextField("Nombre del producto", text: $borrador.nombre)
         CamposProducto(borrador: $borrador)
     }

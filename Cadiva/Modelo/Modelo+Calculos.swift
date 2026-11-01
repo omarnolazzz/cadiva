@@ -65,3 +65,13 @@ extension Producto {
         return ConsumoCalculator.app.duracionAproximada(compras: compras.map(\.datos), hoy: hoy)
     }
 }
+
+extension Compra {
+    var oferta: Oferta? {
+        get { Oferta(json: ofertaJSON) }
+        set { ofertaJSON = newValue?.json }
+    }
+
+    /// Lo que se ahorró en esta compra gracias a la oferta, si se sabe el precio normal.
+    var ahorro: Decimal? { oferta?.ahorro(precioTotal: precioTotal, unidades: cantidad) }
+}

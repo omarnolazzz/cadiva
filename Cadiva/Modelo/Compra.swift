@@ -13,6 +13,8 @@ final class Compra {
     var fechaAgotado: Date?
     /// Identificador en la nube; se asigna la primera vez que se sincroniza.
     var uid: UUID?
+    /// `Oferta` en JSON (ver CadivaCore); nil si se compró a precio normal.
+    var ofertaJSON: String?
 
     init(
         producto: Producto?, fecha: Date, precioTotal: Decimal, cantidad: Decimal,

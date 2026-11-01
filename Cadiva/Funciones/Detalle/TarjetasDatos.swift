@@ -15,12 +15,17 @@ struct CuadriculaDatos: View {
         let masBarata = compras.filter { $0.precioUnitario != nil }.min { $0.precioUnitario! < $1.precioUnitario! }
         let unidades = compras.reduce(0) { $0 + $1.unidades }
         let gastado = compras.reduce(Decimal.zero) { $0 + $1.precioTotal }
+        let conAhorro = compras.compactMap(\.ahorro)
+        let ahorrado = conAhorro.reduce(Decimal.zero, +)
 
         LazyVGrid(columns: [GridItem(.adaptive(minimum: anchoMinimo), spacing: 10)], spacing: 10) {
             Tarjeta(titulo: "Más barato", valor: Formato.moneda(masBarata?.precioUnitario, moneda), detalle: masBarata?.tienda, simbolo: "arrow.down.circle.fill", color: Color.cadiva.priceDown)
             Tarjeta(titulo: "Más caro", valor: Formato.moneda(precios.max(), moneda), detalle: nil, simbolo: "arrow.up.circle.fill", color: Color.cadiva.priceUp)
             Tarjeta(titulo: "Promedio", valor: Formato.moneda(resumen.precioUnitarioPromedio, moneda), detalle: "por unidad", simbolo: "equal.circle.fill", color: Color.cadiva.brand)
             Tarjeta(titulo: "Gastado", valor: Formato.moneda(gastado, moneda), detalle: "\(Formato.unidades(unidades)) en \(compras.count == 1 ? "1 compra" : "\(compras.count) compras")", simbolo: "creditcard.fill", color: Color.cadiva.brand)
+            if ahorrado > 0 {
+                Tarjeta(titulo: "Ahorrado", valor: Formato.moneda(ahorrado, moneda), detalle: conAhorro.count == 1 ? "en 1 oferta" : "en \(conAhorro.count) ofertas", simbolo: "tag.fill", color: Color.cadiva.priceDown)
+            }
         }
     }
 }

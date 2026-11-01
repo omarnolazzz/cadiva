@@ -75,6 +75,10 @@ struct ProductosView: View {
                     ruta = [primero]
                 }
                 creando = Demo.valor("--pantalla") == "nuevo-producto"
+                if ["oferta-detalle", "oferta-compra"].contains(Demo.valor("--pantalla")),
+                   let papas = productos.first(where: { $0.nombre.hasPrefix("Papas") }) {
+                    ruta = [papas]
+                }
             }
             #endif
         }

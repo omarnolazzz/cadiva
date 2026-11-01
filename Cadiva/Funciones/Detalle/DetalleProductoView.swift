@@ -118,7 +118,10 @@ struct DetalleProductoView: View {
         .sheet(item: $compraEditada) { FormularioCompraView(producto: producto, compra: $0) }
         .sheet(isPresented: $registrando) { FormularioCompraView(producto: producto) }
         #if DEBUG
-        .onAppear { registrando = Demo.valor("--pantalla") == "registro" }
+        .onAppear {
+            registrando = Demo.valor("--pantalla") == "registro"
+            if Demo.valor("--pantalla") == "oferta-compra" { compraEditada = producto.comprasOrdenadas.last }
+        }
         #endif
     }
 

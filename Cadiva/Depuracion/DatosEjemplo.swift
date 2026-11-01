@@ -1,4 +1,5 @@
 #if DEBUG
+import CadivaCore
 import Foundation
 import SwiftData
 
@@ -37,6 +38,7 @@ enum DatosEjemplo {
         var unidades: Decimal = 1
         let tienda: String
         var agotadoHace: Int?
+        var oferta: Oferta?
     }
 
     static func poblar(_ contexto: ModelContext, hoy: Date = .now) {
@@ -51,6 +53,7 @@ enum DatosEjemplo {
                     producto: producto, fecha: dia(muestra.hace), precioTotal: Decimal(muestra.centimos) / 100 * muestra.unidades,
                     cantidad: muestra.unidades, tienda: muestra.tienda, fechaAgotado: muestra.agotadoHace.map(dia)
                 )
+                compra.oferta = muestra.oferta
                 contexto.insert(compra)
             }
         }
@@ -86,7 +89,10 @@ enum DatosEjemplo {
             [
                 Muestra(hace: 75, centimos: 4990, tienda: "Metro", agotadoHace: 40),
                 Muestra(hace: 40, centimos: 4690, tienda: "Makro", agotadoHace: 9),
-                Muestra(hace: 9, centimos: 5290, tienda: "Wong"),
+                Muestra(
+                    hace: 9, centimos: 4232, tienda: "Wong",
+                    oferta: Oferta(tipo: .descuento, porcentaje: 20, precioNormal: Decimal(string: "52.90"))
+                ),
             ]
         )
         agregar(
@@ -109,7 +115,10 @@ enum DatosEjemplo {
             [
                 Muestra(hace: 21, centimos: 250, tienda: "Tambo"),
                 Muestra(hace: 9, centimos: 230, tienda: "Mass"),
-                Muestra(hace: 2, centimos: 270, tienda: "Tambo"),
+                Muestra(
+                    hace: 2, centimos: 200, unidades: 2, tienda: "Tambo",
+                    oferta: Oferta(tipo: .pack, cantidad: 2, precioPack: 4, precioNormal: Decimal(string: "2.70"))
+                ),
             ]
         )
         agregar(

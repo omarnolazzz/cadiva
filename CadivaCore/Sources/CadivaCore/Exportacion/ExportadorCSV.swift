@@ -9,10 +9,15 @@ public struct FilaCSV: Sendable, Hashable {
     public var tienda: String?
     public var fechaAgotado: Date?
     public var duracionRealDias: Int?
+    /// Cómo se describe la oferta ("2 por S/ 4.00"), si hubo.
+    public var oferta: String?
+    /// Lo que se ahorró con la oferta en toda la compra.
+    public var ahorro: Decimal?
 
     public init(
         producto: String, categoria: String, fecha: Date,
-        precioTotal: Decimal, cantidad: Decimal, tienda: String?, fechaAgotado: Date?, duracionRealDias: Int?
+        precioTotal: Decimal, cantidad: Decimal, tienda: String?, fechaAgotado: Date?, duracionRealDias: Int?,
+        oferta: String? = nil, ahorro: Decimal? = nil
     ) {
         self.producto = producto
         self.categoria = categoria
@@ -22,6 +27,8 @@ public struct FilaCSV: Sendable, Hashable {
         self.tienda = tienda
         self.fechaAgotado = fechaAgotado
         self.duracionRealDias = duracionRealDias
+        self.oferta = oferta
+        self.ahorro = ahorro
     }
 }
 
@@ -29,7 +36,7 @@ public struct FilaCSV: Sendable, Hashable {
 public enum ExportadorCSV {
     static let columnas = [
         "producto", "categoria", "fecha", "precio_total", "cantidad",
-        "precio_unitario", "tienda", "fecha_agotado", "duracion_real_dias",
+        "precio_unitario", "tienda", "fecha_agotado", "duracion_real_dias", "oferta", "ahorro",
     ]
 
     public static func csv(_ filas: [FilaCSV], calendar: Calendar) -> String {
@@ -46,6 +53,8 @@ public enum ExportadorCSV {
                 escapar(fila.tienda ?? ""),
                 fila.fechaAgotado?.formatted(estiloFecha) ?? "",
                 fila.duracionRealDias.map(String.init) ?? "",
+                escapar(fila.oferta ?? ""),
+                fila.ahorro.map(numero) ?? "",
             ].joined(separator: ",")
         }
         return "\u{FEFF}" + ([columnas.joined(separator: ",")] + cuerpo).joined(separator: "\n") + "\n"

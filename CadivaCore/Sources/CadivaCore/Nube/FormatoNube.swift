@@ -63,4 +63,9 @@ public enum FormatoNube {
         }
         return try c.decode(Decimal.self, forKey: clave)
     }
+
+    static func decimalOpcional<K: CodingKey>(_ c: KeyedDecodingContainer<K>, _ clave: K) throws -> Decimal? {
+        guard c.contains(clave), try !c.decodeNil(forKey: clave) else { return nil }
+        return try decimal(c, clave)
+    }
 }

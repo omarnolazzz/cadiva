@@ -85,6 +85,7 @@ struct RaizView: View {
             huella.combine(compra.cantidad)
             huella.combine(compra.tienda)
             huella.combine(compra.fechaAgotado)
+            huella.combine(compra.ofertaJSON)
         }
         return huella.finalize()
     }

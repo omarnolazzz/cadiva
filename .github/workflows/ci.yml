@@ -135,6 +135,8 @@ jobs:
             capturar "productos-$apariencia" $apariencia large
             capturar "detalle-$apariencia" $apariencia large --pantalla detalle
             capturar "registro-$apariencia" $apariencia large --pantalla registro
+            capturar "oferta-detalle-$apariencia" $apariencia large --pantalla oferta-detalle
+            capturar "oferta-compra-$apariencia" $apariencia large --pantalla oferta-compra
             capturar "nuevo-producto-$apariencia" $apariencia large --pantalla nuevo-producto
             capturar "gasto-$apariencia" $apariencia large --pestana 1
             capturar "ajustes-$apariencia" $apariencia large --pestana 2

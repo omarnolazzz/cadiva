@@ -73,7 +73,7 @@ public struct ProductoNube: FilaSincronizable {
 
 public struct CompraNube: FilaSincronizable {
     public static let tabla = "compras"
-    public static let columnas = "id,producto_id,fecha,precio_total::text,cantidad::text,tienda,fecha_agotado,borrado,modificado"
+    public static let columnas = "id,producto_id,fecha,precio_total::text,cantidad::text,tienda,fecha_agotado,oferta,borrado,modificado"
 
     public var id: UUID
     public var productoId: UUID?
@@ -82,11 +82,13 @@ public struct CompraNube: FilaSincronizable {
     public var cantidad: Decimal
     public var tienda: String?
     public var fechaAgotado: Date?
+    /// `Oferta` en JSON; nil si se compró a precio normal.
+    public var oferta: String?
     public var borrado: Bool
 
     public init(
         id: UUID, productoId: UUID?, fecha: Date, precioTotal: Decimal, cantidad: Decimal,
-        tienda: String?, fechaAgotado: Date?, borrado: Bool = false
+        tienda: String?, fechaAgotado: Date?, oferta: String? = nil, borrado: Bool = false
     ) {
         self.id = id
         self.productoId = productoId
@@ -95,11 +97,12 @@ public struct CompraNube: FilaSincronizable {
         self.cantidad = cantidad
         self.tienda = tienda
         self.fechaAgotado = fechaAgotado.map(FormatoNube.redondear)
+        self.oferta = oferta
         self.borrado = borrado
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, fecha, cantidad, tienda, borrado
+        case id, fecha, cantidad, tienda, oferta, borrado
         case productoId = "producto_id"
         case precioTotal = "precio_total"
         case fechaAgotado = "fecha_agotado"
@@ -114,6 +117,7 @@ public struct CompraNube: FilaSincronizable {
         cantidad = try FormatoNube.decimal(c, .cantidad)
         tienda = try c.decodeIfPresent(String.self, forKey: .tienda)
         fechaAgotado = try c.decodeIfPresent(Date.self, forKey: .fechaAgotado)
+        oferta = try c.decodeIfPresent(String.self, forKey: .oferta)
         borrado = try c.decodeIfPresent(Bool.self, forKey: .borrado) ?? false
     }
 
@@ -127,6 +131,7 @@ public struct CompraNube: FilaSincronizable {
         try c.encode("\(cantidad)", forKey: .cantidad)
         try c.encode(tienda, forKey: .tienda)
         try c.encode(fechaAgotado, forKey: .fechaAgotado)
+        try c.encode(oferta, forKey: .oferta)
         try c.encode(borrado, forKey: .borrado)
     }
 }

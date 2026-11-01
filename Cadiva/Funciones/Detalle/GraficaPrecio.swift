@@ -16,12 +16,13 @@ struct GraficaPrecio: View {
         let valor: Double
         let texto: String
         let tienda: String
+        let conOferta: Bool
     }
 
     private var puntos: [Punto] {
         compras.enumerated().compactMap { indice, compra in
             compra.precioUnitario.map {
-                Punto(id: indice, fecha: compra.fecha, valor: $0.double, texto: Formato.moneda($0, moneda), tienda: compra.tienda ?? "")
+                Punto(id: indice, fecha: compra.fecha, valor: $0.double, texto: Formato.moneda($0, moneda), tienda: compra.tienda ?? "", conOferta: compra.ofertaJSON != nil)
             }
         }
     }
@@ -41,7 +42,7 @@ struct GraficaPrecio: View {
                 .foregroundStyle(Color.cadiva.brand)
             PointMark(x: .value("Fecha", punto.fecha), y: .value("Precio", valor))
                 .symbolSize(punto.id == ultimo ? 110 : 36)
-                .foregroundStyle(punto.id == ultimo ? Color.cadiva.brandDeep : Color.cadiva.brand)
+                .foregroundStyle(punto.conOferta ? Color.cadiva.priceDown : punto.id == ultimo ? Color.cadiva.brandDeep : Color.cadiva.brand)
                 .annotation(position: .top, alignment: .center, spacing: 6) {
                     if punto.id == ultimo {
                         Text(punto.texto)
@@ -51,7 +52,7 @@ struct GraficaPrecio: View {
                             .opacity(progreso)
                     }
                 }
-                .accessibilityLabel("\(Formato.fechaLarga(punto.fecha)), \(punto.tienda)")
+                .accessibilityLabel("\(Formato.fechaLarga(punto.fecha)), \(punto.tienda)\(punto.conOferta ? ", con oferta" : "")")
                 .accessibilityValue("\(punto.texto) por unidad")
         }
         .chartYScale(domain: .automatic(includesZero: false))

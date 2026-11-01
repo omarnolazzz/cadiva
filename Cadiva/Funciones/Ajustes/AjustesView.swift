@@ -92,7 +92,8 @@ struct AjustesView: View {
             return FilaCSV(
                 producto: producto.nombre, categoria: producto.categoria.nombre,
                 fecha: compra.fecha, precioTotal: compra.precioTotal, cantidad: compra.cantidad,
-                tienda: compra.tienda, fechaAgotado: compra.fechaAgotado, duracionRealDias: compra.duracionReal
+                tienda: compra.tienda, fechaAgotado: compra.fechaAgotado, duracionRealDias: compra.duracionReal,
+                oferta: compra.oferta.map { Formato.oferta($0, moneda) }, ahorro: compra.ahorro
             )
         }
         let url = FileManager.default.temporaryDirectory.appending(path: "cadiva-compras.csv")

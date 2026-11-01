@@ -35,7 +35,8 @@ extension Compra {
     var fila: CompraNube {
         CompraNube(
             id: uid ?? UUID(), productoId: producto?.uid, fecha: fecha, precioTotal: precioTotal,
-            cantidad: cantidad, tienda: tienda, fechaAgotado: fechaAgotado
+            cantidad: cantidad, tienda: tienda, fechaAgotado: fechaAgotado,
+            oferta: ofertaJSON
         )
     }
 
@@ -46,5 +47,6 @@ extension Compra {
         cantidad = fila.cantidad
         tienda = fila.tienda
         fechaAgotado = fila.fechaAgotado
+        ofertaJSON = fila.oferta
     }
 }

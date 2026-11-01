@@ -21,9 +21,21 @@ struct FilaHistorial: View {
                 .labelStyle(EtiquetaCompacta())
                 .font(.subheadline)
                 .foregroundStyle(Color.cadiva.textSecondary)
+                if let oferta = compra.oferta {
+                    ChipOferta(oferta: oferta, moneda: moneda)
+                        .padding(.top, 2)
+                }
             }
             Spacer(minLength: 4)
             VStack(alignment: .trailing, spacing: 4) {
+                if let normal = compra.oferta?.precioNormal {
+                    Text(Formato.moneda(normal, moneda))
+                        .font(.caption)
+                        .strikethrough()
+                        .monospacedDigit()
+                        .foregroundStyle(Color.cadiva.textSecondary)
+                        .accessibilityLabel("Precio normal \(Formato.moneda(normal, moneda))")
+                }
                 Text(Formato.moneda(compra.precioUnitario, moneda))
                     .font(.body.weight(.semibold))
                     .monospacedDigit()

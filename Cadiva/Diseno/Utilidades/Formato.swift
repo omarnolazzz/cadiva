@@ -1,3 +1,4 @@
+import CadivaCore
 import Foundation
 import SwiftUI
 
@@ -70,5 +71,34 @@ extension View {
     /// Fondo de celda con los tokens de Cadiva.
     func celdaCadiva() -> some View {
         listRowBackground(Color.cadiva.surface)
+    }
+}
+
+extension Formato {
+    /// "2 por S/ 4.00", "3x2", "-20 %", "2.ª unidad -50 %", "Rebajado".
+    static func oferta(_ oferta: Oferta, _ moneda: String) -> String {
+        switch oferta.tipo {
+        case .pack:
+            return "\(oferta.cantidad ?? 2) por \(Formato.moneda(oferta.precioPack, moneda))"
+        case .llevaPaga:
+            return "\(oferta.cantidad ?? 3)x\(oferta.paga ?? 2)"
+        case .descuento:
+            return "-\(Formato.porcentaje((oferta.porcentaje ?? 0) / 100))"
+        case .segundaUnidad:
+            return "2.ª unidad -\(Formato.porcentaje((oferta.porcentaje ?? 0) / 100))"
+        case .rebajado:
+            return "Rebajado"
+        }
+    }
+
+    /// Nombre del tipo, para el selector.
+    static func tipoOferta(_ tipo: Oferta.Tipo) -> String {
+        switch tipo {
+        case .pack: "Pack (2 por S/ 4)"
+        case .llevaPaga: "Lleva y paga (3x2)"
+        case .descuento: "% de descuento"
+        case .segundaUnidad: "2.ª unidad con descuento"
+        case .rebajado: "Precio rebajado"
+        }
     }
 }

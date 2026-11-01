@@ -66,6 +66,14 @@ struct GastoView: View {
                             .monospacedDigit()
                             .foregroundStyle(Color.cadiva.textSecondary)
                     }
+                    if let actual, case let ahorro = ahorroEn(actual.intervalo), ahorro > 0 {
+                        Label("Ahorraste \(Formato.moneda(ahorro, moneda)) con ofertas", systemImage: "tag.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(Color.cadiva.priceDown)
+                            .padding(.top, 2)
+                            .transition(.opacity)
+                    }
                 }
                 .accessibilityElement(children: .combine)
 
@@ -136,6 +144,11 @@ struct GastoView: View {
     private struct TotalTienda {
         var nombre: String
         var total: Decimal
+    }
+
+    /// Lo que se ahorró con ofertas en el periodo.
+    private func ahorroEn(_ intervalo: DateInterval) -> Decimal {
+        compras.filter { intervalo.contains($0.fecha) }.compactMap(\.ahorro).reduce(Decimal.zero, +)
     }
 
     private func porTienda(en intervalo: DateInterval) -> [TotalTienda] {

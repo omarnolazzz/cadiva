@@ -49,7 +49,15 @@ struct FilaResumenProducto: View {
                         .monospacedDigit()
                         .foregroundStyle(Color.cadiva.textPrimary)
                         .contentTransition(.numericText(value: precio.double))
-                    IndicadorCambio(cambio: cambio)
+                    HStack(spacing: 4) {
+                        if ultima?.ofertaJSON != nil {
+                            Image(systemName: "tag.fill")
+                                .font(.caption2)
+                                .foregroundStyle(Color.cadiva.priceDown)
+                                .accessibilityLabel("Con oferta")
+                        }
+                        IndicadorCambio(cambio: cambio)
+                    }
                 }
             }
         }

@@ -39,9 +39,15 @@ private struct EstiloGlass: ViewModifier {
     func body(content: Content) -> some View {
         let forma = RoundedRectangle(cornerRadius: 24, style: .continuous)
         if #available(iOS 26.0, *) {
+            // El vidrio va como fondo con su forma: aplicado directo al botón se dibujaba de lado a lado.
             content
                 .buttonStyle(.plain)
-                .glassEffect(.regular.tint(Color.cadiva.brand.opacity(0.12)).interactive(), in: forma)
+                .background {
+                    forma
+                        .fill(.clear)
+                        .glassEffect(.regular.tint(Color.cadiva.brand.opacity(0.12)).interactive(), in: forma)
+                }
+                .clipShape(forma)
         } else {
             content
                 .buttonStyle(.plain)

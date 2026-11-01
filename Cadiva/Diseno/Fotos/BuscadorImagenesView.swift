@@ -16,6 +16,10 @@ struct BuscadorImagenesView: View {
     @State private var descargando = false
     @State private var error: String?
     @State private var mostrarAyuda = true
+    @State private var cargandoPagina = true
+    @State private var errorPagina: String?
+    /// Cambia para volver a cargar la misma búsqueda.
+    @State private var intento = 0
 
     init(consultaInicial: String, alElegir: @escaping (Data) -> Void) {
         self.consultaInicial = consultaInicial
@@ -27,8 +31,35 @@ struct BuscadorImagenesView: View {
 
     var body: some View {
         NavigationStack {
-            NavegadorImagenes(direccion: direccion) { origen in
-                Task { await previsualizar(origen) }
+            NavegadorImagenes(
+                direccion: direccion, intento: intento,
+                alTocarImagen: { origen in Task { await previsualizar(origen) } },
+                alCambiarCarga: { cargando, fallo in
+                    withAnimation(.snappy) {
+                        cargandoPagina = cargando
+                        errorPagina = fallo
+                    }
+                }
+            )
+            .overlay {
+                if let errorPagina {
+                    ContentUnavailableView {
+                        Label("No se pudo abrir Google", systemImage: "wifi.exclamationmark")
+                    } description: {
+                        Text(errorPagina)
+                    } actions: {
+                        Button("Reintentar") { intento += 1 }
+                            .buttonStyle(.borderedProminent)
+                            .tint(Color.cadiva.brandDeep)
+                    }
+                    .background(Color.cadiva.background)
+                } else if cargandoPagina {
+                    ProgressView()
+                        .controlSize(.large)
+                        .padding(24)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .transition(.opacity)
+                }
             }
             .ignoresSafeArea(edges: .bottom)
             .overlay(alignment: .top) {
@@ -190,7 +221,10 @@ private struct FondoVidrio: ViewModifier {
 /// WKWebView con un script que avisa qué imagen se tocó, sin estorbar la navegación de Google.
 struct NavegadorImagenes: UIViewRepresentable {
     let direccion: URL
+    var intento = 0
     let alTocarImagen: @MainActor (String) -> Void
+    /// (cargando, mensaje de error si falló).
+    var alCambiarCarga: @MainActor (Bool, String?) -> Void = { _, _ in }
 
     static let nombreMensaje = "cadivaImagen"
 
@@ -212,7 +246,7 @@ struct NavegadorImagenes: UIViewRepresentable {
     })();
     """
 
-    func makeCoordinator() -> Coordinador { Coordinador(alTocarImagen: alTocarImagen) }
+    func makeCoordinator() -> Coordinador { Coordinador(alTocarImagen: alTocarImagen, alCambiarCarga: alCambiarCarga) }
 
     func makeUIView(context: Context) -> WKWebView {
         let configuracion = WKWebViewConfiguration()
@@ -224,15 +258,19 @@ struct NavegadorImagenes: UIViewRepresentable {
         configuracion.userContentController.add(context.coordinator, name: Self.nombreMensaje)
         let navegador = WKWebView(frame: .zero, configuration: configuracion)
         navegador.allowsBackForwardNavigationGestures = true
+        navegador.navigationDelegate = context.coordinator
         navegador.load(URLRequest(url: direccion))
         context.coordinator.cargada = direccion
+        context.coordinator.intento = intento
         return navegador
     }
 
     func updateUIView(_ navegador: WKWebView, context: Context) {
         context.coordinator.alTocarImagen = alTocarImagen
-        if context.coordinator.cargada != direccion {
+        context.coordinator.alCambiarCarga = alCambiarCarga
+        if context.coordinator.cargada != direccion || context.coordinator.intento != intento {
             context.coordinator.cargada = direccion
+            context.coordinator.intento = intento
             navegador.load(URLRequest(url: direccion))
         }
     }
@@ -242,12 +280,37 @@ struct NavegadorImagenes: UIViewRepresentable {
     }
 
     @MainActor
-    final class Coordinador: NSObject, WKScriptMessageHandler {
+    final class Coordinador: NSObject, WKScriptMessageHandler, WKNavigationDelegate {
         var alTocarImagen: @MainActor (String) -> Void
+        var alCambiarCarga: @MainActor (Bool, String?) -> Void
         var cargada: URL?
+        var intento = 0
 
-        init(alTocarImagen: @escaping @MainActor (String) -> Void) {
+        init(alTocarImagen: @escaping @MainActor (String) -> Void, alCambiarCarga: @escaping @MainActor (Bool, String?) -> Void) {
             self.alTocarImagen = alTocarImagen
+            self.alCambiarCarga = alCambiarCarga
+        }
+
+        func webView(_ navegador: WKWebView, didStartProvisionalNavigation navegacion: WKNavigation!) {
+            alCambiarCarga(true, nil)
+        }
+
+        func webView(_ navegador: WKWebView, didFinish navegacion: WKNavigation!) {
+            alCambiarCarga(false, nil)
+        }
+
+        func webView(_ navegador: WKWebView, didFail navegacion: WKNavigation!, withError error: Error) {
+            fallo(error)
+        }
+
+        func webView(_ navegador: WKWebView, didFailProvisionalNavigation navegacion: WKNavigation!, withError error: Error) {
+            fallo(error)
+        }
+
+        private func fallo(_ error: Error) {
+            // Cancelar una carga para empezar otra no es un error para la persona.
+            if (error as NSError).code == NSURLErrorCancelled { return }
+            alCambiarCarga(false, "Revisa tu conexión a internet e inténtalo de nuevo.")
         }
 
         func userContentController(_ controlador: WKUserContentController, didReceive mensaje: WKScriptMessage) {

@@ -155,7 +155,7 @@ jobs:
             capturar "cuenta-crear-pin-$apariencia" $apariencia large --pestana 2 --pantalla crear-pin
             capturar "cuenta-oferta-$apariencia" $apariencia large --pantalla oferta
           done
-          ESPERA=10 capturar "buscar-imagen" light large --pantalla buscar-imagen
+          ESPERA=20 capturar "buscar-imagen" light large --pantalla buscar-imagen
           ESPERA=1.3 capturar "cuenta-arranque-trazando" light large --pantalla arranque
           ESPERA=1.9 capturar "cuenta-arranque-cruzando" light large --pantalla arranque
           capturar "cuenta-login-light-ax5" light accessibility-extra-extra-extra-large --pantalla login

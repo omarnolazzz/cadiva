@@ -38,22 +38,22 @@ struct BotonGlass: View {
 private struct EstiloGlass: ViewModifier {
     func body(content: Content) -> some View {
         let forma = RoundedRectangle(cornerRadius: 24, style: .continuous)
-        if #available(iOS 26.0, *) {
-            // El vidrio va como fondo con su forma: aplicado directo al botón se dibujaba de lado a lado.
-            content
-                .buttonStyle(.plain)
-                .background {
-                    forma
-                        .fill(.clear)
-                        .glassEffect(.regular.tint(Color.cadiva.brand.opacity(0.12)).interactive(), in: forma)
-                }
-                .clipShape(forma)
-        } else {
-            content
-                .buttonStyle(.plain)
-                .background(.ultraThinMaterial, in: forma)
-                .overlay(forma.stroke(Color.white.opacity(0.35), lineWidth: 1))
-        }
+        // Vidrio propio (material + tinte + borde de luz): el Liquid Glass del sistema no respetaba
+        // la forma redondeada en este botón y se dibujaba como una franja de lado a lado.
+        content
+            .buttonStyle(.plain)
+            .background(.ultraThinMaterial, in: forma)
+            .background(Color.cadiva.brand.opacity(0.08), in: forma)
+            .overlay(
+                forma.strokeBorder(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.6), Color.white.opacity(0.08)],
+                        startPoint: .top, endPoint: .bottom
+                    ),
+                    lineWidth: 1
+                )
+            )
+            .clipShape(forma)
     }
 }
 

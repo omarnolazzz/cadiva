@@ -21,6 +21,51 @@ struct ListaProductos: View {
         let activos = visibles.filter { !$0.archivado }
         let archivados = visibles.filter(\.archivado)
 
+        contenedor(activos: activos, archivados: archivados, visibles: visibles)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if categorias.count > 1 {
+                FiltroCategorias(categorias: categorias, seleccion: $categoria)
+            }
+        }
+        .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Picker("Ordenar por", selection: $orden) {
+                        ForEach(OrdenProductos.allCases) { opcion in
+                            Label(Formato.orden(opcion), systemImage: Formato.simboloOrden(opcion)).tag(opcion)
+                        }
+                    }
+                } label: {
+                    Label("Ordenar", systemImage: "arrow.up.arrow.down")
+                }
+                .accessibilityIdentifier("ordenar-productos")
+            }
+        }
+        // Si se borró el último producto de la categoría elegida, se vuelve a "Todas".
+        .onChange(of: categorias) { _, nuevas in
+            if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
+        }
+    }
+
+    @ViewBuilder
+    private func contenedor(activos: [ResumenFila], archivados: [ResumenFila], visibles: [ResumenFila]) -> some View {
+        #if DEBUG
+        if Demo.valor("--variante") == "lazy" {
+            ScrollView {
+                LazyVStack(spacing: 10) {
+                    ForEach(activos) { fila($0).padding(.horizontal, 16) }
+                }
+            }
+        } else {
+            lista(activos: activos, archivados: archivados, visibles: visibles)
+        }
+        #else
+        lista(activos: activos, archivados: archivados, visibles: visibles)
+        #endif
+    }
+
+    private func lista(activos: [ResumenFila], archivados: [ResumenFila], visibles: [ResumenFila]) -> some View {
         List {
             if !activos.isEmpty {
                 Section {
@@ -50,32 +95,6 @@ struct ListaProductos: View {
             }
         }
         .listStyle(.insetGrouped)
-        // Una lista nueva por categoría: solo arma las filas visibles y empieza desde arriba.
-        .id(categoria)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if categorias.count > 1 {
-                FiltroCategorias(categorias: categorias, seleccion: $categoria)
-            }
-        }
-        .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Picker("Ordenar por", selection: $orden) {
-                        ForEach(OrdenProductos.allCases) { opcion in
-                            Label(Formato.orden(opcion), systemImage: Formato.simboloOrden(opcion)).tag(opcion)
-                        }
-                    }
-                } label: {
-                    Label("Ordenar", systemImage: "arrow.up.arrow.down")
-                }
-                .accessibilityIdentifier("ordenar-productos")
-            }
-        }
-        // Si se borró el último producto de la categoría elegida, se vuelve a "Todas".
-        .onChange(of: categorias) { _, nuevas in
-            if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
-        }
     }
 
     private func cuenta(_ total: Int) -> String {
@@ -97,10 +116,22 @@ struct ListaProductos: View {
         return orden.ordenar(elegidos, clave: \.clave)
     }
 
+    @ViewBuilder
+    private func contenidoFila(_ resumen: ResumenFila) -> some View {
+        #if DEBUG
+        if Demo.valor("--variante") == "sin-zoom" {
+            FilaResumenProducto(resumen: resumen)
+        } else {
+            FilaResumenProducto(resumen: resumen).origenZoom(id: resumen.id, en: espacio)
+        }
+        #else
+        FilaResumenProducto(resumen: resumen).origenZoom(id: resumen.id, en: espacio)
+        #endif
+    }
+
     private func fila(_ resumen: ResumenFila) -> some View {
         NavigationLink(value: resumen.producto) {
-            FilaResumenProducto(resumen: resumen)
-                .origenZoom(id: resumen.id, en: espacio)
+            contenidoFila(resumen)
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {

@@ -8,7 +8,11 @@ import SwiftData
 enum DatosEjemplo {
     static let contenedor: ModelContainer = {
         let contenedor = vacio()
-        poblar(contenedor.mainContext)
+        if Demo.valor("--pantalla") == "medir-filtro" {
+            poblarMuchos(contenedor.mainContext)
+        } else {
+            poblar(contenedor.mainContext)
+        }
         return contenedor
     }()
 

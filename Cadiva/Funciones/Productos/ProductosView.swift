@@ -71,6 +71,14 @@ struct ProductosView: View {
                 Text("Se borrará también su historial de compras. Si solo quieres ocultarlo, archívalo.")
             }
             #if DEBUG
+            .task {
+                guard Demo.valor("--pantalla") == "medir-filtro" else { return }
+                await MedidorFluidez.recorrer([Categoria?.none] + categoriasUsadas.map(Optional.some)) { opcion in
+                    withAnimation(.snappy) { categoria = opcion }
+                }
+            }
+            #endif
+            #if DEBUG
             .onAppear {
                 if ["detalle", "registro"].contains(Demo.valor("--pantalla")), let primero = productos.first(where: { !$0.compras.isEmpty }) {
                     ruta = [primero]

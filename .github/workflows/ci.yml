@@ -126,13 +126,10 @@ jobs:
           xcrun simctl ui "$ID" appearance light
           xcrun simctl ui "$ID" content_size large
           DATOS=$(xcrun simctl get_app_container "$ID" com.cadiva.app data)
-          for variante in base sin-zoom lazy; do
-            rm -f "$DATOS/Documents/medicion-fluidez.json"
-            xcrun simctl launch --terminate-running-process "$ID" com.cadiva.app --datos-ejemplo --pantalla medir-filtro --variante $variante > /dev/null
-            sleep 40
-            echo "== $variante"
-            cp "$DATOS/Documents/medicion-fluidez.json" "capturas/medicion-$variante.json" && cat "capturas/medicion-$variante.json" || echo "Sin medición (no terminó en 40 s)"
-          done
+          rm -f "$DATOS/Documents/medicion-fluidez.json"
+          xcrun simctl launch --terminate-running-process "$ID" com.cadiva.app --datos-ejemplo --pantalla medir-filtro > /dev/null
+          sleep 40
+          cp "$DATOS/Documents/medicion-fluidez.json" capturas/ && cat capturas/medicion-fluidez.json || echo "Sin medición (no terminó en 40 s)"
           capturar() { # nombre apariencia tamaño argumentos...
             local nombre=$1 apariencia=$2 tamano=$3; shift 3
             xcrun simctl ui "$ID" appearance "$apariencia"

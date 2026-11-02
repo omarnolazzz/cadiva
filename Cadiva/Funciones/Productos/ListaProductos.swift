@@ -7,7 +7,6 @@ import SwiftUI
 struct ListaProductos: View {
     let resumenes: [ResumenFila]
     let navegacion: NavegacionProductos
-    let espacio: Namespace.ID
 
     @Environment(\.modelContext) private var contexto
     @AppStorage(Preferencias.ordenProductos) private var orden: OrdenProductos = .recientes
@@ -21,7 +20,7 @@ struct ListaProductos: View {
         let activos = visibles.filter { !$0.archivado }
         let archivados = visibles.filter(\.archivado)
 
-        contenedor(activos: activos, archivados: archivados, visibles: visibles)
+        lista(activos: activos, archivados: archivados, visibles: visibles)
         .safeAreaInset(edge: .top, spacing: 0) {
             if categorias.count > 1 {
                 FiltroCategorias(categorias: categorias, seleccion: $categoria)
@@ -46,23 +45,6 @@ struct ListaProductos: View {
         .onChange(of: categorias) { _, nuevas in
             if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
         }
-    }
-
-    @ViewBuilder
-    private func contenedor(activos: [ResumenFila], archivados: [ResumenFila], visibles: [ResumenFila]) -> some View {
-        #if DEBUG
-        if Demo.valor("--variante") == "lazy" {
-            ScrollView {
-                LazyVStack(spacing: 10) {
-                    ForEach(activos) { fila($0).padding(.horizontal, 16) }
-                }
-            }
-        } else {
-            lista(activos: activos, archivados: archivados, visibles: visibles)
-        }
-        #else
-        lista(activos: activos, archivados: archivados, visibles: visibles)
-        #endif
     }
 
     private func lista(activos: [ResumenFila], archivados: [ResumenFila], visibles: [ResumenFila]) -> some View {
@@ -116,22 +98,9 @@ struct ListaProductos: View {
         return orden.ordenar(elegidos, clave: \.clave)
     }
 
-    @ViewBuilder
-    private func contenidoFila(_ resumen: ResumenFila) -> some View {
-        #if DEBUG
-        if Demo.valor("--variante") == "sin-zoom" {
-            FilaResumenProducto(resumen: resumen)
-        } else {
-            FilaResumenProducto(resumen: resumen).origenZoom(id: resumen.id, en: espacio)
-        }
-        #else
-        FilaResumenProducto(resumen: resumen).origenZoom(id: resumen.id, en: espacio)
-        #endif
-    }
-
     private func fila(_ resumen: ResumenFila) -> some View {
         NavigationLink(value: resumen.producto) {
-            contenidoFila(resumen)
+            FilaResumenProducto(resumen: resumen)
         }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {

@@ -20,13 +20,12 @@ struct ProductosView: View {
     @Environment(\.scenePhase) private var fase
 
     @State private var navegacion = NavegacionProductos()
-    @Namespace private var transicion
 
     var body: some View {
         @Bindable var navegacion = navegacion
 
         NavigationStack(path: $navegacion.ruta) {
-            FuenteProductos(navegacion: navegacion, espacio: transicion)
+            FuenteProductos(navegacion: navegacion)
                 .fondoCadiva()
                 .navigationTitle("Productos")
                 .toolbar {
@@ -41,7 +40,6 @@ struct ProductosView: View {
                 }
                 .navigationDestination(for: Producto.self) { producto in
                     DetalleProductoView(producto: producto)
-                        .transicionZoom(id: producto.persistentModelID, en: transicion)
                 }
                 .sheet(isPresented: $navegacion.creando) {
                     EditarProductoView { nuevo in
@@ -76,7 +74,6 @@ struct ProductosView: View {
 /// Su cuerpo solo se vuelve a evaluar cuando cambian los datos, no al filtrar ni al navegar.
 private struct FuenteProductos: View {
     let navegacion: NavegacionProductos
-    let espacio: Namespace.ID
 
     // La animación de la consulta cubre altas y bajas de productos; filtrar no pasa por aquí.
     @Query(sort: \Producto.nombre, animation: .snappy) private var productos: [Producto]
@@ -94,8 +91,7 @@ private struct FuenteProductos: View {
             } else {
                 ListaProductos(
                     resumenes: productos.map { ResumenFila(producto: $0, moneda: moneda, hoy: navegacion.hoy) },
-                    navegacion: navegacion,
-                    espacio: espacio
+                    navegacion: navegacion
                 )
             }
         }

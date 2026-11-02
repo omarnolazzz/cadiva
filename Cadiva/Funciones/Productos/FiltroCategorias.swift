@@ -21,7 +21,8 @@ struct FiltroCategorias: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 6)
         }
-        .background(Color.cadiva.background)
+        // Sin extenderse a la zona segura: si no, el color sube y tapa el título de la pantalla.
+        .background(Color.cadiva.background, ignoresSafeAreaEdges: [])
         .sensoryFeedback(.selection, trigger: visual)
         .onAppear { visual = seleccion }
         .onChange(of: seleccion) { _, nueva in

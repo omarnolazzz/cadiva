@@ -26,11 +26,14 @@ struct ListaProductos: View {
                 Section {
                     ForEach(activos) { fila($0) }
                 } header: {
-                    HStack {
-                        Text(activos.count == 1 ? "1 producto" : "\(activos.count) productos")
-                        Spacer()
-                        Text(Formato.orden(orden))
-                            .textCase(nil)
+                    // Con texto muy grande solo cabe la cuenta.
+                    ViewThatFits(in: .horizontal) {
+                        HStack {
+                            Text(cuenta(activos.count)).fixedSize()
+                            Spacer()
+                            Text(Formato.orden(orden)).textCase(nil).fixedSize()
+                        }
+                        Text(cuenta(activos.count))
                     }
                 }
                 .celdaCadiva()
@@ -47,6 +50,8 @@ struct ListaProductos: View {
             }
         }
         .listStyle(.insetGrouped)
+        // Una lista nueva por categoría: solo arma las filas visibles y empieza desde arriba.
+        .id(categoria)
         .safeAreaInset(edge: .top, spacing: 0) {
             if categorias.count > 1 {
                 FiltroCategorias(categorias: categorias, seleccion: $categoria)
@@ -71,6 +76,10 @@ struct ListaProductos: View {
         .onChange(of: categorias) { _, nuevas in
             if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
         }
+    }
+
+    private func cuenta(_ total: Int) -> String {
+        total == 1 ? "1 producto" : "\(total) productos"
     }
 
     private var categoriasUsadas: [Categoria] {

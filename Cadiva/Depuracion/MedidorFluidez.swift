@@ -12,7 +12,7 @@ final class MedidorFluidez: NSObject {
     private var cuadros: [Double] = []
 
     /// Recorre las opciones varias veces, con una pausa como la de una persona tocando los filtros.
-    static func recorrer<Opcion>(_ opciones: [Opcion], cambiar: (Opcion) -> Void) async {
+    static func recorrer<Opcion>(_ opciones: [Opcion], cambiar: @MainActor (Opcion) -> Void) async {
         guard !opciones.isEmpty else { return }
         try? await Task.sleep(for: .seconds(3))
         let medidor = MedidorFluidez()

@@ -1,42 +1,35 @@
 import CadivaCore
-import SwiftData
 import SwiftUI
 
 /// Miniatura, nombre, última tienda y fecha; a la derecha el último precio por unidad.
+/// No calcula nada: muestra lo que ya trae `ResumenFila`.
 struct FilaResumenProducto: View {
-    let producto: Producto
-    let moneda: String
+    let resumen: ResumenFila
 
     @Environment(\.dynamicTypeSize) private var tamanoTexto
 
     var body: some View {
-        // Todo lo de la fila sale de una sola pasada por las compras.
-        let calculadora = ConsumoCalculator.app
-        let ultima = producto.ultimaCompra
-        let ordenadas = calculadora.ordenadas(producto.compras.map { $0.datos })
-        let cambio = ordenadas.count > 1 ? calculadora.cambioPrecio(de: ordenadas[ordenadas.count - 1], anterior: ordenadas[ordenadas.count - 2]) : nil
-        let estimacion = producto.seguimiento == .duracion ? calculadora.duracionAproximada(compras: ordenadas, hoy: .now) : nil
         // Con texto de accesibilidad todo va en columna para que nada se corte.
         let disposicion = tamanoTexto.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
             : AnyLayout(HStackLayout(spacing: 14))
         disposicion {
-            MiniaturaProducto(producto: producto, tamano: 52)
+            MiniaturaProducto(producto: resumen.producto, tamano: 52)
             VStack(alignment: .leading, spacing: 3) {
-                Text(producto.nombre)
+                Text(resumen.nombre)
                     .font(.body.weight(.semibold))
                     .foregroundStyle(Color.cadiva.textPrimary)
                     .lineLimit(tamanoTexto.isAccessibilitySize ? nil : 3)
-                if let ultima {
+                if let linea = resumen.lineaCompra {
                     Label {
-                        Text("\(ultima.tienda ?? "Sin tienda") · \(ultima.fecha.formatted(.relative(presentation: .named).locale(.cadiva)))")
+                        Text(linea)
                     } icon: {
                         Image(systemName: "storefront")
                     }
                     .labelStyle(EtiquetaCompacta())
                     .font(.subheadline)
                     .foregroundStyle(Color.cadiva.textSecondary)
-                    if let estimacion, !estimacion.terminada {
+                    if let estimacion = resumen.estimacion, !estimacion.terminada {
                         IndicadorDuracion(estimacion: estimacion)
                     }
                 } else {
@@ -46,21 +39,20 @@ struct FilaResumenProducto: View {
                 }
             }
             if !tamanoTexto.isAccessibilitySize { Spacer(minLength: 4) }
-            if let precio = ultima?.precioUnitario {
+            if let precio = resumen.precioTexto {
                 VStack(alignment: tamanoTexto.isAccessibilitySize ? .leading : .trailing, spacing: 4) {
-                    Text(Formato.moneda(precio, moneda))
+                    Text(precio)
                         .font(.body.weight(.semibold))
                         .monospacedDigit()
                         .foregroundStyle(Color.cadiva.textPrimary)
-                        .contentTransition(.numericText(value: precio.double))
                     HStack(spacing: 4) {
-                        if ultima?.ofertaJSON != nil {
+                        if resumen.conOferta {
                             Image(systemName: "tag.fill")
                                 .font(.caption2)
                                 .foregroundStyle(Color.cadiva.priceDown)
                                 .accessibilityLabel("Con oferta")
                         }
-                        IndicadorCambio(cambio: cambio)
+                        IndicadorCambio(cambio: resumen.cambio)
                     }
                 }
             }

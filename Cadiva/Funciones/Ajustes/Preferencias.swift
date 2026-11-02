@@ -3,6 +3,7 @@ import Foundation
 /// Claves de `@AppStorage` y sus valores por defecto.
 enum Preferencias {
     static let moneda = "moneda"
+    static let ordenProductos = "ordenProductos"
 
     static let monedaPorDefecto = "PEN"
 

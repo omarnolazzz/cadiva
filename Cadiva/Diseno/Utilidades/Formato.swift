@@ -102,3 +102,27 @@ extension Formato {
         }
     }
 }
+
+extension Formato {
+    static func orden(_ orden: OrdenProductos) -> String {
+        switch orden {
+        case .recientes: "Compra más reciente"
+        case .nombre: "Nombre (A–Z)"
+        case .precioMenor: "Precio: menor a mayor"
+        case .precioMayor: "Precio: mayor a menor"
+        case .masSubieron: "Los que más subieron"
+        case .porAcabarse: "Por acabarse"
+        }
+    }
+
+    static func simboloOrden(_ orden: OrdenProductos) -> String {
+        switch orden {
+        case .recientes: "clock"
+        case .nombre: "textformat"
+        case .precioMenor: "arrow.down.circle"
+        case .precioMayor: "arrow.up.circle"
+        case .masSubieron: "chart.line.uptrend.xyaxis"
+        case .porAcabarse: "hourglass"
+        }
+    }
+}

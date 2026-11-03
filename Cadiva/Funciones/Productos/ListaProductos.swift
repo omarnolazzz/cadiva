@@ -24,9 +24,7 @@ struct ListaProductos: View {
 
         listaLigera(activos: activos, archivados: archivados, vacia: visibles.isEmpty)
             .safeAreaInset(edge: .top, spacing: 0) {
-                if categorias.count > 1 {
-                    FiltroCategorias(categorias: categorias, seleccion: $categoria)
-                }
+                encabezado(categorias)
             }
             .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
             .toolbar {
@@ -49,24 +47,35 @@ struct ListaProductos: View {
             }
     }
 
+    private func encabezado(_ categorias: [Categoria]) -> some View {
+        HStack(spacing: 8) {
+            if categorias.count > 1 {
+                FiltroCategorias(categorias: categorias, resumenes: resumenes, seleccion: $categoria)
+            } else {
+                Text(cuenta(resumenes.count))
+                    .accessibilityAddTraits(.isHeader)
+            }
+            Spacer(minLength: 0)
+            // Con texto muy grande solo cabe el filtro.
+            if !tamanoTexto.isAccessibilitySize {
+                Text(Formato.orden(orden))
+                    .lineLimit(1)
+            }
+        }
+        .font(.footnote.weight(.medium))
+        .foregroundStyle(Color.cadiva.textSecondary)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 6)
+        // Sin extenderse a la zona segura: si no, el color sube y tapa el título de la pantalla.
+        .background(Color.cadiva.background, ignoresSafeAreaEdges: [])
+    }
+
     private func listaLigera(activos: [ResumenFila], archivados: [ResumenFila], vacia: Bool) -> some View {
         ScrollViewReader { lector in
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     Color.clear.frame(height: 0).id("inicio")
                     if !activos.isEmpty {
-                        HStack {
-                            Text(cuenta(activos.count))
-                            Spacer()
-                            // Con texto muy grande solo cabe la cuenta.
-                            if !tamanoTexto.isAccessibilitySize {
-                                Text(Formato.orden(orden))
-                            }
-                        }
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(Color.cadiva.textSecondary)
-                        .padding(.horizontal, 6)
-                        .accessibilityAddTraits(.isHeader)
                         bloque(activos)
                     }
                     if !archivados.isEmpty {

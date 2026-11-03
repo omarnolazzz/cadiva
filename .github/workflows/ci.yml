@@ -140,7 +140,6 @@ jobs:
           }
           medir 120 --pantalla medir-filtro
           medir 20 --pantalla medir-filtro --cantidad 20
-          medir chips --pantalla medir-scroll
           xcrun simctl install "$ID" "$APP"
           capturar() { # nombre apariencia tamaño argumentos...
             local nombre=$1 apariencia=$2 tamano=$3; shift 3
@@ -152,6 +151,7 @@ jobs:
           }
           for apariencia in light dark; do
             capturar "productos-$apariencia" $apariencia large
+            capturar "productos-filtrado-$apariencia" $apariencia large --pantalla filtro-elegido
             capturar "detalle-$apariencia" $apariencia large --pantalla detalle
             capturar "registro-$apariencia" $apariencia large --pantalla registro
             capturar "oferta-detalle-$apariencia" $apariencia large --pantalla oferta-detalle

@@ -115,6 +115,18 @@ extension Formato {
         }
     }
 
+    /// Para el botón del menú, donde comparte la línea con el filtro de categorías.
+    static func ordenCorto(_ orden: OrdenProductos) -> String {
+        switch orden {
+        case .recientes: "Más reciente"
+        case .nombre: "Nombre (A–Z)"
+        case .precioMenor: "Menor precio"
+        case .precioMayor: "Mayor precio"
+        case .masSubieron: "Más subieron"
+        case .porAcabarse: "Por acabarse"
+        }
+    }
+
     static func simboloOrden(_ orden: OrdenProductos) -> String {
         switch orden {
         case .recientes: "clock"

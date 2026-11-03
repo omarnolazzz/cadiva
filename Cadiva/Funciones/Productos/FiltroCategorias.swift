@@ -19,18 +19,11 @@ struct FiltroCategorias: View {
                 }
             }
         } label: {
-            HStack(spacing: 6) {
-                Label(seleccion?.nombre ?? "Todas", systemImage: seleccion?.simbolo ?? "square.grid.2x2")
-                    .lineLimit(1)
-                Image(systemName: "chevron.down")
-                    .font(.caption.weight(.semibold))
-                    .accessibilityHidden(true)
-            }
-            .font(.subheadline.weight(.medium))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .foregroundStyle(seleccion == nil ? Color.cadiva.textPrimary : Color.white)
-            .background(seleccion == nil ? Color.cadiva.surface : Color.cadiva.brand, in: Capsule())
+            CapsulaMenu(
+                titulo: seleccion?.nombre ?? "Todas",
+                simbolo: seleccion?.simbolo ?? "square.grid.2x2",
+                activa: seleccion != nil
+            )
         }
         .menuOrder(.fixed)
         .accessibilityLabel("Categoría: \(seleccion?.nombre ?? "Todas")")
@@ -42,11 +35,38 @@ struct FiltroCategorias: View {
             case "medir-filtro":
                 await MedidorFluidez.recorrer([Categoria?.none] + categorias.map(Optional.some)) { seleccion = $0 }
             case "filtro-elegido":
-                seleccion = categorias.first
+                // La categoría de nombre más largo, para revisar que todo quepa.
+                seleccion = categorias.max { $0.nombre.count < $1.nombre.count }
             default:
                 break
             }
         }
         #endif
+    }
+}
+
+/// Aspecto de los botones que abren un menú sobre la lista.
+struct CapsulaMenu: View {
+    let titulo: String
+    var simbolo: String?
+    var activa = false
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let simbolo {
+                Image(systemName: simbolo)
+                    .accessibilityHidden(true)
+            }
+            Text(titulo)
+                .lineLimit(1)
+            Image(systemName: "chevron.down")
+                .font(.caption.weight(.semibold))
+                .accessibilityHidden(true)
+        }
+        .font(.subheadline.weight(.medium))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .foregroundStyle(activa ? Color.white : Color.cadiva.textPrimary)
+        .background(activa ? Color.cadiva.brand : Color.cadiva.surface, in: Capsule())
     }
 }

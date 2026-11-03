@@ -33,7 +33,8 @@ struct ProductosView: View {
                         Button {
                             navegacion.creando = true
                         } label: {
-                            Label("Nuevo producto", systemImage: "plus.square.on.square")
+                            Label("Agregar producto", systemImage: "plus")
+                                .labelStyle(.titleAndIcon)
                         }
                         .accessibilityIdentifier("nuevo-producto")
                     }
@@ -85,8 +86,8 @@ private struct FuenteProductos: View {
                 EstadoVacio(
                     titulo: "Sin productos",
                     mensaje: "Agrega un producto y luego registra cada compra: cuánto pagaste por unidad y en qué tienda.",
-                    tituloAccion: "Nuevo producto",
-                    simboloAccion: "plus.square.on.square"
+                    tituloAccion: "Agregar producto",
+                    simboloAccion: "plus"
                 ) { navegacion.creando = true }
             } else {
                 ListaProductos(

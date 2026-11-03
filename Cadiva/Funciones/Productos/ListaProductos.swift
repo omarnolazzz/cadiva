@@ -27,20 +27,6 @@ struct ListaProductos: View {
                 encabezado(categorias)
             }
             .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Picker("Ordenar por", selection: $orden) {
-                            ForEach(OrdenProductos.allCases) { opcion in
-                                Label(Formato.orden(opcion), systemImage: Formato.simboloOrden(opcion)).tag(opcion)
-                            }
-                        }
-                    } label: {
-                        Label("Ordenar", systemImage: "arrow.up.arrow.down")
-                    }
-                    .accessibilityIdentifier("ordenar-productos")
-                }
-            }
             // Si se borró el último producto de la categoría elegida, se vuelve a "Todas".
             .onChange(of: categorias) { _, nuevas in
                 if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
@@ -48,26 +34,46 @@ struct ListaProductos: View {
     }
 
     private func encabezado(_ categorias: [Categoria]) -> some View {
-        HStack(spacing: 8) {
-            if categorias.count > 1 {
-                FiltroCategorias(categorias: categorias, resumenes: resumenes, seleccion: $categoria)
-            } else {
-                Text(cuenta(resumenes.count))
-                    .accessibilityAddTraits(.isHeader)
+        // Con texto muy grande los dos botones no caben en una línea.
+        let disposicion = tamanoTexto.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+            : AnyLayout(HStackLayout(spacing: 8))
+
+        return disposicion {
+            Group {
+                if categorias.count > 1 {
+                    FiltroCategorias(categorias: categorias, resumenes: resumenes, seleccion: $categoria)
+                } else {
+                    Text(cuenta(resumenes.count))
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(Color.cadiva.textSecondary)
+                        .accessibilityAddTraits(.isHeader)
+                }
             }
-            Spacer(minLength: 0)
-            // Con texto muy grande solo cabe el filtro.
-            if !tamanoTexto.isAccessibilitySize {
-                Text(Formato.orden(orden))
-                    .lineLimit(1)
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            menuOrden
         }
-        .font(.footnote.weight(.medium))
-        .foregroundStyle(Color.cadiva.textSecondary)
         .padding(.horizontal, 20)
         .padding(.vertical, 6)
         // Sin extenderse a la zona segura: si no, el color sube y tapa el título de la pantalla.
         .background(Color.cadiva.background, ignoresSafeAreaEdges: [])
+    }
+
+    private var menuOrden: some View {
+        Menu {
+            Section("Ordenar por") {
+                Picker("Ordenar por", selection: $orden) {
+                    ForEach(OrdenProductos.allCases) { opcion in
+                        Label(Formato.orden(opcion), systemImage: Formato.simboloOrden(opcion)).tag(opcion)
+                    }
+                }
+            }
+        } label: {
+            CapsulaMenu(titulo: Formato.ordenCorto(orden))
+        }
+        .menuOrder(.fixed)
+        .accessibilityLabel("Ordenar: \(Formato.orden(orden))")
+        .accessibilityIdentifier("ordenar-productos")
     }
 
     private func listaLigera(activos: [ResumenFila], archivados: [ResumenFila], vacia: Bool) -> some View {

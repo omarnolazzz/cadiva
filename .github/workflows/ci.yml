@@ -161,6 +161,7 @@ jobs:
             capturar "ajustes-$apariencia" $apariencia large --pestana 2
             capturar "borrado-$apariencia" $apariencia large --pestana 2 --pantalla borrado
             capturar "productos-$apariencia-xxl" $apariencia extra-extra-large
+            capturar "productos-filtrado-$apariencia-xxl" $apariencia extra-extra-large --pantalla filtro-elegido
             capturar "detalle-$apariencia-xxl" $apariencia extra-extra-large --pantalla detalle
           done
           for apariencia in light dark; do

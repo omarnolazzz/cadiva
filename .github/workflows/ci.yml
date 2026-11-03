@@ -138,11 +138,8 @@ jobs:
             echo "== $nombre"
             cp "$DATOS/Documents/medicion-fluidez.json" "capturas/medicion-$nombre.json" && cat "capturas/medicion-$nombre.json" || echo "Sin medición (no terminó en 40 s)"
           }
-          medir list --pantalla medir-filtro --variante list
-          medir ligera --pantalla medir-filtro
-          medir list-20 --pantalla medir-filtro --cantidad 20 --variante list
-          medir ligera-20 --pantalla medir-filtro --cantidad 20
-          medir ligera-sin-minimizar --pantalla medir-filtro --variante sin-minimizar
+          medir 120 --pantalla medir-filtro
+          medir 20 --pantalla medir-filtro --cantidad 20
           medir chips --pantalla medir-scroll
           xcrun simctl install "$ID" "$APP"
           capturar() { # nombre apariencia tamaño argumentos...

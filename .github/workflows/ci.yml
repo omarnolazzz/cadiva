@@ -122,14 +122,29 @@ jobs:
           xcrun simctl boot "$ID" || true
           xcrun simctl bootstatus "$ID" -b
           xcrun simctl status_bar "$ID" override --time 9:41 --batteryState charged --batteryLevel 100
-          xcrun simctl install "$ID" "$APP"
+          # Medición con compilación optimizada: la de prueba normal exagera el costo de SwiftUI.
+          xcodebuild build -project Cadiva.xcodeproj -scheme Cadiva -configuration Debug \
+            -destination "id=$ID" -derivedDataPath build-o CODE_SIGNING_ALLOWED=NO \
+            SWIFT_OPTIMIZATION_LEVEL=-O SWIFT_COMPILATION_MODE=wholemodule > build-o.log 2>&1 || tail -20 build-o.log
+          xcrun simctl install "$ID" build-o/Build/Products/Debug-iphonesimulator/Cadiva.app
           xcrun simctl ui "$ID" appearance light
           xcrun simctl ui "$ID" content_size large
           DATOS=$(xcrun simctl get_app_container "$ID" com.cadiva.app data)
-          rm -f "$DATOS/Documents/medicion-fluidez.json"
-          xcrun simctl launch --terminate-running-process "$ID" com.cadiva.app --datos-ejemplo --pantalla medir-filtro > /dev/null
-          sleep 40
-          cp "$DATOS/Documents/medicion-fluidez.json" capturas/ && cat capturas/medicion-fluidez.json || echo "Sin medición (no terminó en 40 s)"
+          medir() { # nombre argumentos...
+            local nombre=$1; shift
+            rm -f "$DATOS/Documents/medicion-fluidez.json"
+            xcrun simctl launch --terminate-running-process "$ID" com.cadiva.app --datos-ejemplo "$@" > /dev/null
+            sleep 40
+            echo "== $nombre"
+            cp "$DATOS/Documents/medicion-fluidez.json" "capturas/medicion-$nombre.json" && cat "capturas/medicion-$nombre.json" || echo "Sin medición (no terminó en 40 s)"
+          }
+          medir list --pantalla medir-filtro --variante list
+          medir ligera --pantalla medir-filtro
+          medir list-20 --pantalla medir-filtro --cantidad 20 --variante list
+          medir ligera-20 --pantalla medir-filtro --cantidad 20
+          medir ligera-sin-minimizar --pantalla medir-filtro --variante sin-minimizar
+          medir chips --pantalla medir-scroll
+          xcrun simctl install "$ID" "$APP"
           capturar() { # nombre apariencia tamaño argumentos...
             local nombre=$1 apariencia=$2 tamano=$3; shift 3
             xcrun simctl ui "$ID" appearance "$apariencia"

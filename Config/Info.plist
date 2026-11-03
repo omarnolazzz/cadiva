@@ -6,6 +6,8 @@
 	<string>$(SUPABASE_HOST)</string>
 	<key>SupabaseAnonKey</key>
 	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Cadiva usa Face ID para abrirse sin escribir tu PIN ni tu contraseña.</string>
 	<key>NSCameraUsageDescription</key>

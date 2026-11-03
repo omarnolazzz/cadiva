@@ -11,15 +11,33 @@ struct FiltroCategorias: View {
     @Namespace private var espacio
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                boton(nil, titulo: "Todas", simbolo: "square.grid.2x2")
-                ForEach(categorias) { opcion in
-                    boton(opcion, titulo: opcion.nombre, simbolo: opcion.simbolo)
+        ScrollViewReader { lector in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    boton(nil, titulo: "Todas", simbolo: "square.grid.2x2")
+                    ForEach(categorias) { opcion in
+                        boton(opcion, titulo: opcion.nombre, simbolo: opcion.simbolo)
+                            .id(opcion)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 6)
+            }
+            #if DEBUG
+            .task {
+                switch Demo.valor("--pantalla") {
+                case "medir-filtro":
+                    await MedidorFluidez.recorrer([Categoria?.none] + categorias.map(Optional.some), cambiar: elegir)
+                case "medir-scroll":
+                    // Mover la fila de categorías, sin cambiar el filtro.
+                    await MedidorFluidez.recorrer(categorias + categorias.reversed()) { opcion in
+                        withAnimation(.easeInOut(duration: 0.4)) { lector.scrollTo(opcion, anchor: .center) }
+                    }
+                default:
+                    break
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 6)
+            #endif
         }
         // Sin extenderse a la zona segura: si no, el color sube y tapa el título de la pantalla.
         .background(Color.cadiva.background, ignoresSafeAreaEdges: [])
@@ -28,12 +46,6 @@ struct FiltroCategorias: View {
         .onChange(of: seleccion) { _, nueva in
             if visual != nueva { visual = nueva }
         }
-        #if DEBUG
-        .task {
-            guard Demo.valor("--pantalla") == "medir-filtro" else { return }
-            await MedidorFluidez.recorrer([Categoria?.none] + categorias.map(Optional.some), cambiar: elegir)
-        }
-        #endif
     }
 
     private func elegir(_ opcion: Categoria?) {

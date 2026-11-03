@@ -97,6 +97,19 @@ struct RaizView: View {
 /// En iOS 26 la barra de pestañas de Liquid Glass se encoge al desplazarse.
 private struct BarraQueSeEncoge: ViewModifier {
     func body(content: Content) -> some View {
+        #if DEBUG
+        if Demo.valor("--variante") == "sin-minimizar" {
+            content
+        } else {
+            encogible(content)
+        }
+        #else
+        encogible(content)
+        #endif
+    }
+
+    @ViewBuilder
+    private func encogible(_ content: Content) -> some View {
         if #available(iOS 26.0, *) {
             content.tabBarMinimizeBehavior(.onScrollDown)
         } else {

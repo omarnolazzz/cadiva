@@ -56,11 +56,11 @@ final class MedidorFluidez: NSObject {
 }
 
 extension DatosEjemplo {
-    /// Una despensa grande para medir: 120 productos de todas las categorías, con 8 compras cada uno.
+    /// Muchos productos para medir (120, o los de `--cantidad`), de todas las categorías, con 8 compras cada uno.
     static func poblarMuchos(_ contexto: ModelContext, hoy: Date = .now) {
         let calendario = Calendar.cadiva
         let tiendas = ["Plaza Vea", "Tottus", "Makro", "Mass", "Metro", "Wong"]
-        for numero in 0..<120 {
+        for numero in 0..<(Demo.valor("--cantidad").flatMap(Int.init) ?? 120) {
             let categoria = Categoria.allCases[numero % Categoria.allCases.count]
             let producto = Producto(nombre: "\(categoria.nombre) \(numero)", categoria: categoria, simbolo: categoria.simbolo)
             contexto.insert(producto)

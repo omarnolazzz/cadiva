@@ -4,6 +4,7 @@ import SwiftUI
 
 /// Lista con búsqueda, filtro por categoría y orden. Recibe los resúmenes ya calculados:
 /// cambiar de categoría u orden solo filtra y reordena valores en memoria.
+/// Usa un contenedor perezoso, que solo construye las filas visibles (`List` tardaba más al filtrar).
 struct ListaProductos: View {
     let resumenes: [ResumenFila]
     let navegacion: NavegacionProductos
@@ -20,63 +21,113 @@ struct ListaProductos: View {
         let activos = visibles.filter { !$0.archivado }
         let archivados = visibles.filter(\.archivado)
 
-        lista(activos: activos, archivados: archivados, visibles: visibles)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if categorias.count > 1 {
-                FiltroCategorias(categorias: categorias, seleccion: $categoria)
-            }
-        }
-        .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Picker("Ordenar por", selection: $orden) {
-                        ForEach(OrdenProductos.allCases) { opcion in
-                            Label(Formato.orden(opcion), systemImage: Formato.simboloOrden(opcion)).tag(opcion)
-                        }
-                    }
-                } label: {
-                    Label("Ordenar", systemImage: "arrow.up.arrow.down")
+        contenedor(activos: activos, archivados: archivados, vacia: visibles.isEmpty)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if categorias.count > 1 {
+                    FiltroCategorias(categorias: categorias, seleccion: $categoria)
                 }
-                .accessibilityIdentifier("ordenar-productos")
             }
+            .searchable(text: $busqueda, prompt: "Buscar producto o tienda")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Picker("Ordenar por", selection: $orden) {
+                            ForEach(OrdenProductos.allCases) { opcion in
+                                Label(Formato.orden(opcion), systemImage: Formato.simboloOrden(opcion)).tag(opcion)
+                            }
+                        }
+                    } label: {
+                        Label("Ordenar", systemImage: "arrow.up.arrow.down")
+                    }
+                    .accessibilityIdentifier("ordenar-productos")
+                }
+            }
+            // Si se borró el último producto de la categoría elegida, se vuelve a "Todas".
+            .onChange(of: categorias) { _, nuevas in
+                if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
+            }
+    }
+
+    @ViewBuilder
+    private func contenedor(activos: [ResumenFila], archivados: [ResumenFila], vacia: Bool) -> some View {
+        #if DEBUG
+        if Demo.valor("--variante") == "list" {
+            List {
+                Section { ForEach(activos) { fila($0) } }
+                Section { ForEach(archivados) { fila($0) } }
+            }
+            .listStyle(.insetGrouped)
+        } else {
+            listaLigera(activos: activos, archivados: archivados, vacia: vacia)
         }
-        // Si se borró el último producto de la categoría elegida, se vuelve a "Todas".
-        .onChange(of: categorias) { _, nuevas in
-            if let categoria, !nuevas.contains(categoria) { self.categoria = nil }
+        #else
+        listaLigera(activos: activos, archivados: archivados, vacia: vacia)
+        #endif
+    }
+
+    private func listaLigera(activos: [ResumenFila], archivados: [ResumenFila], vacia: Bool) -> some View {
+        ScrollViewReader { lector in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    Color.clear.frame(height: 0).id("inicio")
+                    if !activos.isEmpty {
+                        // Con texto muy grande solo cabe la cuenta.
+                        ViewThatFits(in: .horizontal) {
+                            HStack {
+                                Text(cuenta(activos.count)).fixedSize()
+                                Spacer()
+                                Text(Formato.orden(orden)).fixedSize()
+                            }
+                            Text(cuenta(activos.count))
+                        }
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(Color.cadiva.textSecondary)
+                        .padding(.horizontal, 6)
+                        .accessibilityAddTraits(.isHeader)
+                        bloque(activos)
+                    }
+                    if !archivados.isEmpty {
+                        Text("Archivados")
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(Color.cadiva.textSecondary)
+                            .padding(.horizontal, 6)
+                            .padding(.top, 12)
+                            .accessibilityAddTraits(.isHeader)
+                        bloque(archivados)
+                    }
+                    if vacia {
+                        ContentUnavailableView.search(text: busqueda)
+                            .padding(.top, 60)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 24)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            // Al filtrar se vuelve arriba, sin animación.
+            .onChange(of: categoria) { lector.scrollTo("inicio", anchor: .top) }
         }
     }
 
-    private func lista(activos: [ResumenFila], archivados: [ResumenFila], visibles: [ResumenFila]) -> some View {
-        List {
-            if !activos.isEmpty {
-                Section {
-                    ForEach(activos) { fila($0) }
-                } header: {
-                    // Con texto muy grande solo cabe la cuenta.
-                    ViewThatFits(in: .horizontal) {
-                        HStack {
-                            Text(cuenta(activos.count)).fixedSize()
-                            Spacer()
-                            Text(Formato.orden(orden)).textCase(nil).fixedSize()
+    /// Las filas de una sección sobre una tarjeta, separadas por una línea.
+    private func bloque(_ filas: [ResumenFila]) -> some View {
+        let ultima = filas.last?.id
+        return LazyVStack(spacing: 0) {
+            ForEach(filas) { resumen in
+                fila(resumen)
+                    .overlay(alignment: .bottom) {
+                        if resumen.id != ultima {
+                            Rectangle()
+                                .fill(Color.cadiva.textSecondary.opacity(0.18))
+                                .frame(height: 0.5)
+                                .padding(.leading, 80)
                         }
-                        Text(cuenta(activos.count))
                     }
-                }
-                .celdaCadiva()
-            }
-            if !archivados.isEmpty {
-                Section("Archivados") {
-                    ForEach(archivados) { fila($0) }
-                }
-                .celdaCadiva()
-            }
-            if visibles.isEmpty {
-                ContentUnavailableView.search(text: busqueda)
-                    .listRowBackground(Color.clear)
             }
         }
-        .listStyle(.insetGrouped)
+        .background(Color.cadiva.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private func cuenta(_ total: Int) -> String {
@@ -100,14 +151,20 @@ struct ListaProductos: View {
 
     private func fila(_ resumen: ResumenFila) -> some View {
         NavigationLink(value: resumen.producto) {
-            FilaResumenProducto(resumen: resumen)
-        }
-        .swipeActions(edge: .trailing) {
-            Button(role: .destructive) {
-                navegacion.porBorrar = resumen.producto
-            } label: {
-                Label("Borrar", systemImage: "trash")
+            HStack(spacing: 8) {
+                FilaResumenProducto(resumen: resumen)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.cadiva.textSecondary.opacity(0.6))
+                    .accessibilityHidden(true)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(EstiloFilaProducto())
+        // Mantener presionado: lo que antes era deslizar la fila.
+        .contextMenu {
             Button {
                 resumen.producto.archivado.toggle()
                 try? contexto.save()
@@ -118,7 +175,19 @@ struct ListaProductos: View {
                     Label("Archivar", systemImage: "archivebox")
                 }
             }
-            .tint(Color.cadiva.textSecondary)
+            Button(role: .destructive) {
+                navegacion.porBorrar = resumen.producto
+            } label: {
+                Label("Borrar", systemImage: "trash")
+            }
         }
+    }
+}
+
+/// Resalta la fila mientras se toca, como una celda de lista.
+private struct EstiloFilaProducto: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(configuration.isPressed ? Color.cadiva.tint : Color.clear)
     }
 }

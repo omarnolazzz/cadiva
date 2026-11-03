@@ -10,6 +10,7 @@ struct ListaProductos: View {
     let navegacion: NavegacionProductos
 
     @Environment(\.modelContext) private var contexto
+    @Environment(\.dynamicTypeSize) private var tamanoTexto
     @AppStorage(Preferencias.ordenProductos) private var orden: OrdenProductos = .recientes
 
     @State private var busqueda = ""

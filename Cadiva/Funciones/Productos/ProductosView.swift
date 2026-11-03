@@ -33,8 +33,16 @@ struct ProductosView: View {
                         Button {
                             navegacion.creando = true
                         } label: {
-                            Label("Agregar producto", systemImage: "plus")
-                                .labelStyle(.titleAndIcon)
+                            // Un Label aquí mostraría solo el icono.
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus")
+                                    .accessibilityHidden(true)
+                                Text("Agregar producto")
+                                    .lineLimit(1)
+                                    .fixedSize()
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .dynamicTypeSize(...DynamicTypeSize.xxLarge)
                         }
                         .accessibilityIdentifier("nuevo-producto")
                     }

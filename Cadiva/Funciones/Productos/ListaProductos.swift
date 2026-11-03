@@ -34,8 +34,8 @@ struct ListaProductos: View {
     }
 
     private func encabezado(_ categorias: [Categoria]) -> some View {
-        // Con texto muy grande los dos botones no caben en una línea.
-        let disposicion = tamanoTexto.isAccessibilitySize
+        // Con texto grande los dos botones no caben en una línea.
+        let disposicion = tamanoTexto >= .xxLarge
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
             : AnyLayout(HStackLayout(spacing: 8))
 
